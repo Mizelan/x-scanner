@@ -12,7 +12,9 @@ export const SEL = {
   quoteContainer: 'div[role="link"]',
   /** Permalink anchors; the one wrapping a <time> is the post's own. */
   statusLink: 'a[href*="/status/"]',
-  /** Reply / repost / like bar. The label slot is inserted right above it. */
+  /** Name, handle and timestamp row. The verdict slot is inserted into its parent row, right aligned. */
+  userName: '[data-testid="User-Name"]',
+  /** Reply / repost / like bar. Fallback anchor for the verdict slot. */
   actionBar: 'div[role="group"]',
   /** Old style promoted wrapper, still checked. */
   placementTracking: '[data-testid="placementTracking"]',

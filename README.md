@@ -3,9 +3,10 @@
 A Chrome extension that runs a behavioral read on every post you scroll past on X, using
 [TypeSafe's Jev](https://docs.typesafe.ai), and shows you exactly what it cost.
 
-Five typed questions ride in one request per post. A small pill appears under a post only when an
-answer crosses its threshold, so most of the timeline stays clean. A panel in the corner counts
-posts, dollars to four decimals, last-call latency and judgments per second while you scroll.
+Five typed questions ride in one request per post. The verdict lands in the post's header row, next
+to the menu button where X puts its own "Ad" label: a solid pill per flagged dimension, or a quiet
+"clean". Click it for every raw value. A panel in the corner counts posts, dollars to four decimals,
+last-call latency and judgments per second while you scroll.
 
 ![x-scanner on the fixture timeline](docs/screenshot.png)
 
@@ -20,19 +21,19 @@ Jev server in `test/e2e/`. Real X looks the same; the pills and panel are the ex
   | pill | type | question, in short | default threshold |
   | --- | --- | --- | --- |
   | `dense` | Score, 4 levels | how much specific, verifiable content the text has | ≥ 2.5 |
-  | `engagement bait` | Noul | does it end by asking for replies, reposts, likes, follows, bookmarks | ≥ 0.85 |
-  | `promo` | Noul | is it pushing a product, course, newsletter, community, or paid offer | ≥ 0.85 |
-  | `secondhand` | Noul | does it only relay someone else's view without adding its own argument | ≥ 0.85 |
+  | `engagement bait` | Noul | does it end by asking for replies, reposts, likes, follows, bookmarks | ≥ 0.75 |
+  | `promo` | Noul | is it pushing a product, course, newsletter, community, or paid offer | ≥ 0.75 |
+  | `secondhand` | Noul | does it only relay someone else's view without adding its own argument | ≥ 0.75 |
   | `padded` | Score, 3 levels | how much of it is filler relative to the information it carries | ≥ 1.5 |
 
-- A fixed height slot is reserved under each post at mount time, so results never shift the layout.
+- The verdict slot sits inline in the header row, so results never shift the layout or cover text.
+  Clicking a pill opens a small card with all five values, the token count, cost and latency of that call.
 - At most 6 requests in flight; the rest queue. A queued post that scrolls away before its turn is
   dropped from the queue, so you only pay for what you actually looked at.
 - Results are cached by post id in extension storage. Scrolling back, reloading, or coming back
   tomorrow re-bills nothing. Editing a question or the model invalidates the cache; editing a
   threshold, label or direction does not.
 - Promoted posts and posts without text are skipped and never sent.
-- Hover a slot to see every raw value, the token count, the cost and latency of that call.
 
 ## Numbers
 

@@ -8,8 +8,8 @@ import { Scheduler } from "./queue.ts";
 import { ResultStore } from "./store.ts";
 import { SessionStats } from "./stats.ts";
 import { Hud } from "./hud.ts";
-import { ensureSlot, fillSlot, getSlot, markSlot } from "./render.ts";
-import { tooltip, verdicts } from "./labels.ts";
+import { applyTheme, ensureSlot, fillSlot, getSlot, installDetailHandler, markSlot } from "./render.ts";
+import { verdicts } from "./labels.ts";
 
 const SETTINGS_LINK = `<a class="xs-link">settings</a>`;
 
@@ -68,6 +68,7 @@ class App {
   /** X is a single page app: the path and the account can change without a reload. */
   private evaluateRoute(): void {
     if (this.stopped) return;
+    applyTheme();
     const reason = this.pausedReason();
     if (reason) {
       if (this.active) {
@@ -182,8 +183,7 @@ class App {
   }
 
   private render(slot: HTMLElement, r: AnalysisResult): void {
-    const vs = verdicts(this.settings.dimensions, r.answers);
-    fillSlot(slot, vs, tooltip(vs, r));
+    fillSlot(slot, verdicts(this.settings.dimensions, r.answers), r);
   }
 
   private fatal(html: string): void {
@@ -214,6 +214,7 @@ async function boot(): Promise<void> {
   const flag = "xScanner";
   if (document.documentElement.dataset[flag]) return;
   document.documentElement.dataset[flag] = "1";
+  installDetailHandler();
   apply(await loadSettings());
   onSettingsChange(apply);
 }

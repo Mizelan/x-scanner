@@ -120,9 +120,25 @@ test("timeline: dwell triggers analysis, pills render, promoted skipped, cache s
   const plain = await page.evaluate(() => {
     const art = Array.from(document.querySelectorAll("article")).find((a) => a.textContent?.includes("Coffee tastes better"));
     const slot = art?.querySelector(".xs-slot") as HTMLElement | null;
-    return { state: slot?.dataset.state, pills: slot?.querySelectorAll(".xs-pill").length };
+    return { state: slot?.dataset.state, hits: slot?.querySelectorAll(".xs-pill-hit").length, clean: slot?.querySelectorAll(".xs-pill-clean").length, inRow: slot?.parentElement?.classList.contains("hdr") };
   });
-  assert.deepEqual(plain, { state: "done", pills: 0 }, "a plain post is analyzed and stays blank");
+  assert.deepEqual(plain, { state: "done", hits: 0, clean: 1, inRow: true }, "a plain post gets a clean pill in the header row");
+
+  // Clicking a pill opens the detail card with all five values and does not navigate.
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.waitForTimeout(400);
+  await page.click('.xs-pill[data-dim="engagement_bait"]');
+  await page.waitForSelector(".xs-detail");
+  const detail = await page.evaluate(() => ({
+    rows: document.querySelectorAll(".xs-detail-row").length,
+    hit: document.querySelector(".xs-detail-row.xs-hit .xs-detail-k")?.textContent,
+    foot: document.querySelector(".xs-detail-foot")?.textContent ?? "",
+  }));
+  assert.equal(detail.rows, 5);
+  assert.equal(detail.hit, "engagement bait");
+  assert.match(detail.foot, /^\d+ tok · \$0\.\d{6} · \d+ ms · jev-1\.13\.0$/);
+  await page.mouse.click(5, 400);
+  await page.waitForFunction(() => !document.querySelector(".xs-detail"));
 
   // Promoted and text-less posts never reach Jev; a quote sends its quoted text; a reply is flagged.
   assert.ok(!server.requests.some((r) => r.text.includes("Meet the new Pixel")), "promoted skipped");

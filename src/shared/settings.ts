@@ -47,7 +47,7 @@ function normalizeDimension(d: Partial<Dimension>): Dimension {
     instructions: String(d.instructions ?? ""),
     levels: type === "score" ? (Array.isArray(d.levels) ? d.levels.map(String) : []) : undefined,
     criteria: type === "noul" ? { true: String(d.criteria?.true ?? ""), false: String(d.criteria?.false ?? "") } : undefined,
-    threshold: finiteOr(d.threshold, type === "noul" ? 0.85 : 1),
+    threshold: finiteOr(d.threshold, type === "noul" ? 0.75 : 1),
     direction: d.direction === "below" ? "below" : "above",
     enabled: d.enabled !== false,
   };

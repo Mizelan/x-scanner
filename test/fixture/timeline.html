@@ -12,10 +12,12 @@
   article { display:flex; gap:12px; padding: 12px 16px 6px; }
   .avatar { width:40px; height:40px; border-radius:50%; background:#3a3f44; flex: none; }
   .col { flex:1; min-width:0; }
-  [data-testid="User-Name"] { display:flex; gap:6px; align-items:baseline; color:#71767b; }
+  .hdr { display:flex; align-items:center; justify-content:space-between; }
+  .menu { color:#71767b; padding: 0 4px; }
+  [data-testid="User-Name"] { display:flex; gap:6px; align-items:baseline; color:#71767b; min-width:0; }
   [data-testid="User-Name"] a { color:inherit; text-decoration:none; }
   [data-testid="User-Name"] .name { color:#e7e9ea; font-weight:700; }
-  .ad { margin-left:auto; font-size: 13px; }
+  .ad { margin-left:8px; font-size: 13px; }
   [data-testid="tweetText"] { white-space: pre-wrap; margin-top: 2px; word-wrap: break-word; }
   [data-testid="tweetText"] img { width:1.2em; height:1.2em; vertical-align:-0.2em; }
   div[role="link"] { border:1px solid #2f3336; border-radius: 16px; padding: 12px; margin-top: 10px; }
@@ -58,7 +60,7 @@
     const ad = it.promoted ? '<span class="ad">Ad</span>' : '';
     const replying = it.reply_to ? `<div class="replying"><span>Replying to </span><a href="/${it.reply_to}">@${it.reply_to}</a></div>` : '';
     a.innerHTML = `<div class="avatar"></div><div class="col">
-      <div data-testid="User-Name"><a href="/${it.handle}"><span class="name">${esc(it.name)}</span></a><a href="/${it.handle}"><span>@${it.handle}</span></a><span>·</span><a href="/${it.handle}/status/${it.id}"><time datetime="2026-09-18T09:00:00Z">${it.id.slice(-1)}h</time></a>${ad}</div>
+      <div class="hdr"><div data-testid="User-Name"><a href="/${it.handle}"><span class="name">${esc(it.name)}</span></a><a href="/${it.handle}"><span>@${it.handle}</span></a><span>·</span><a href="/${it.handle}/status/${it.id}"><time datetime="2026-09-18T09:00:00Z">${it.id.slice(-1)}h</time></a>${ad}</div><div class="menu"><span>···</span></div></div>
       ${replying}
       <div data-testid="tweetText"><span>${textHtml(it.text)}</span></div>
       ${quote}${media}

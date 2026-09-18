@@ -163,7 +163,7 @@ async function main(): Promise<void> {
         type: "noul",
         instructions: "",
         criteria: { true: "", false: "" },
-        threshold: 0.85,
+        threshold: 0.75,
         direction: "above",
         enabled: true,
       }),
