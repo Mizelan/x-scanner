@@ -104,8 +104,9 @@ CJK is handled but not equally well. The post text goes in as written, in whatev
   worker to analyze. Only the service worker holds the API key.
 - One `POST /v1/systemone` per post carries all five questions. Retries follow the official SDKs:
   429 and 529 back off, everything else fails fast.
-- At most 6 requests are in flight; the rest queue in order. A queued post that leaves the viewport
-  is dropped from the queue, so you pay only for posts you actually looked at.
+- At most 6 requests are in flight; the rest queue in order. A queued post that scrolls out of the
+  zone before its turn is dropped, so a fast flick past fifty posts does not bill fifty calls. Set
+  look-ahead to 0 and a wait of 200 ms to pay only for posts you actually stopped on.
 - Results are cached by post id in extension storage. Scrolling back, reloading, or returning the next
   day re-bills nothing.
 - Promoted posts and posts with no text are never sent.
@@ -119,7 +120,7 @@ src/
     settings.ts         schema, defaults, normalization
   content/
     selectors.ts        every X DOM selector, in one place
-    observe.ts          MutationObserver + IntersectionObserver + dwell timer
+    observe.ts          MutationObserver + IntersectionObserver, look-ahead and optional wait
     extract.ts          id, text, quote, reply and promoted detection
     queue.ts            concurrency-capped FIFO with cancel
     cache.ts, store.ts  LRU and its persistence
