@@ -67,7 +67,7 @@ Measured on 2026-09-18 with `jev-1.13.0` over the 16 sample posts in `test/fixtu
 Chrome 120 or newer, Node 22 or newer to build.
 
 ```sh
-git clone <this repository>
+git clone https://github.com/oso95/x-scanner.git
 cd x-scanner
 npm install
 npm run build
