@@ -4,8 +4,8 @@ import { DEFAULT_BASE_URL, DEFAULT_MODEL, DEFAULT_PRICE_PER_MTOK } from "./jev.t
 
 export const SETTINGS_KEY = "settings";
 export const STATS_KEY = "stats";
-/** v1: dwell defaulted to 200 ms. v2: dwell 0 and an 800 px look-ahead. */
-export const SETTINGS_VERSION = 2;
+/** v1: dwell defaulted to 200 ms. v2: dwell 0 and an 800 px look-ahead. v3: scope defaults to all of X. */
+export const SETTINGS_VERSION = 3;
 
 export const DEFAULT_SETTINGS: Settings = {
   enabled: true,
@@ -13,7 +13,7 @@ export const DEFAULT_SETTINGS: Settings = {
   model: DEFAULT_MODEL,
   baseUrl: DEFAULT_BASE_URL,
   pricePerMtok: DEFAULT_PRICE_PER_MTOK,
-  scope: "home",
+  scope: "all",
   accountHandle: "",
   dwellMs: 0,
   lookaheadPx: 800,
@@ -29,6 +29,8 @@ export function normalizeSettings(raw: unknown): Settings {
   const version = Number.isFinite(r.version) ? Number(r.version) : 1;
   // v1 installs saved the old 200 ms default into storage; carry them to the new default.
   const dwellRaw = version < 2 && Number(r.dwellMs) === 200 ? 0 : r.dwellMs;
+  // v1 and v2 saved the old "home" default; follow the new default.
+  const scopeRaw = version < 3 && r.scope === "home" ? "all" : r.scope;
   const dims = Array.isArray(r.dimensions) && r.dimensions.length ? r.dimensions.map(normalizeDimension).map(migrateLabel) : DEFAULT_DIMENSIONS;
   return {
     enabled: typeof r.enabled === "boolean" ? r.enabled : DEFAULT_SETTINGS.enabled,
@@ -36,7 +38,7 @@ export function normalizeSettings(raw: unknown): Settings {
     model: typeof r.model === "string" && r.model.trim() ? r.model.trim() : DEFAULT_MODEL,
     baseUrl: typeof r.baseUrl === "string" && r.baseUrl.trim() ? r.baseUrl.trim() : DEFAULT_BASE_URL,
     pricePerMtok: finiteOr(r.pricePerMtok, DEFAULT_PRICE_PER_MTOK),
-    scope: r.scope === "all" ? "all" : "home",
+    scope: scopeRaw === "home" ? "home" : "all",
     accountHandle: typeof r.accountHandle === "string" ? r.accountHandle.replace(/^@/, "").trim() : "",
     dwellMs: clamp(Number(dwellRaw), 0, 5000, DEFAULT_SETTINGS.dwellMs),
     lookaheadPx: clamp(Number(r.lookaheadPx), 0, 5000, DEFAULT_SETTINGS.lookaheadPx),

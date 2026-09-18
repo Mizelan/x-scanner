@@ -26,7 +26,7 @@ export interface Settings {
   baseUrl: string;
   /** USD per million input tokens. Output tokens are free on Jev. */
   pricePerMtok: number;
-  /** "home": only x.com/home. "all": every timeline, profile, search, thread. */
+  /** "all": every timeline, profile, search, thread (default). "home": only x.com/home. */
   scope: "home" | "all";
   /** If set, only run when the logged in account matches this handle (without @). */
   accountHandle: string;

@@ -75,7 +75,7 @@ npm run build
 
 1. Open `chrome://extensions`, turn on Developer mode, click **Load unpacked**, choose the `dist/` folder.
 2. Click the x-scanner icon. Paste your TypeSafe API key, click **Test connection**, then **Save**.
-3. Open [x.com/home](https://x.com/home) and scroll.
+3. Open [x.com](https://x.com) and scroll: home, profiles, search, threads, lists.
 
 Your key lives in this browser's extension storage and nowhere else. The only network traffic is the
 post text to `api.typesafe.ai`. No server, no analytics.
@@ -83,7 +83,7 @@ post text to `api.typesafe.ai`. No server, no analytics.
 ## Settings
 
 - **Enabled**: master switch.
-- **Scope**: home timeline only (default), or everywhere on X.
+- **Scope**: everywhere on X (default), or the home timeline only.
 - **Only when logged in as**: a handle, for people who switch accounts and want it on one.
 - **Dimensions**: add, remove, disable, rename, switch between Noul and Score, edit the question, levels
   and criteria, set the threshold and whether the flag fires above or below it.

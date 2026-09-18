@@ -234,7 +234,7 @@ test("scope: home only pauses on other paths, account filter pauses on mismatch"
   const base = `http://127.0.0.1:${server.port}`;
 
   await sw.evaluate(async (baseUrl: string) => {
-    await chrome.storage.local.set({ settings: { apiKey: "test-key", baseUrl, scope: "home" } });
+    await chrome.storage.local.set({ settings: { apiKey: "test-key", baseUrl, scope: "home", version: 3 } });
   }, base);
   const page = await ctx.newPage();
   await page.goto(`${base}/timeline.html`);
