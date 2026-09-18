@@ -4,7 +4,7 @@ import { buildQuestions, DEFAULT_DIMENSIONS, maxValue, questionsHash, validateDi
 
 test("builds one typed question per enabled dimension", () => {
   const q = buildQuestions(DEFAULT_DIMENSIONS);
-  assert.deepEqual(Object.keys(q), ["info_density", "engagement_bait", "promotion", "secondhand", "padding"]);
+  assert.deepEqual(Object.keys(q), ["info_density", "engagement_bait", "promotion", "secondhand", "padding", "about_jev"]);
   assert.equal(q.info_density!.type, "score");
   assert.equal((q.info_density!.criteria as string[]).length, 4);
   assert.equal(q.engagement_bait!.type, "noul");

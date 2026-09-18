@@ -77,7 +77,23 @@ export const DEFAULT_DIMENSIONS: Dimension[] = [
     direction: "above",
     enabled: true,
   },
+  {
+    id: "about_jev",
+    label: "jev",
+    type: "noul",
+    instructions: "Is `text` about Jev, the System One model from TypeSafe AI, or about TypeSafe AI itself?",
+    criteria: {
+      true: "Mentions or discusses Jev the AI model, TypeSafe, typesafe.ai, or System One models: using it, benchmarking it, its pricing, its launch, or reactions to it",
+      false: "Does not mention Jev the model or TypeSafe. A person or anything else named Jev, other AI models, or unrelated topics",
+    },
+    threshold: 0.75,
+    direction: "above",
+    enabled: true,
+  },
 ];
+
+/** Dimensions added after the first release, appended to stored settings on upgrade. Keyed by the settings version that introduced them. */
+export const ADDED_IN_VERSION: Record<number, string[]> = { 4: ["about_jev"] };
 
 /** Turn enabled dimensions into the `questions` map Jev expects. */
 export function buildQuestions(dimensions: Dimension[]): Record<string, JevQuestion> {

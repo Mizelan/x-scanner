@@ -148,7 +148,7 @@ test("timeline: dwell triggers analysis, pills render, promoted skipped, cache s
       afterText: slot?.previousElementSibling?.getAttribute("data-testid"),
     };
   });
-  assert.deepEqual(plain, { state: "done", verdict: "clean", flags: 0, ok: "✓ clean", values: 5, afterText: "tweetText" }, "a plain post shows a green check and all five values under its text");
+  assert.deepEqual(plain, { state: "done", verdict: "clean", flags: 0, ok: "✓ clean", values: 6, afterText: "tweetText" }, "a plain post shows a green check and every value under its text");
   const flagged = await page.evaluate(() => {
     const art = Array.from(document.querySelectorAll("article")).find((a) => a.textContent?.includes("Bookmark this"));
     return (art?.querySelector(".xs-slot") as HTMLElement | null)?.dataset.verdict;
@@ -170,7 +170,7 @@ test("timeline: dwell triggers analysis, pills render, promoted skipped, cache s
     hit: document.querySelector(".xs-detail-row.xs-hit .xs-detail-k")?.textContent,
     foot: document.querySelector(".xs-detail-foot")?.textContent ?? "",
   }));
-  assert.equal(detail.rows, 5);
+  assert.equal(detail.rows, 6);
   assert.equal(detail.hit, "engagement bait");
   assert.match(detail.foot, /^\d+ tok · \$0\.\d{6} · \d+ ms · jev-1\.13\.0$/);
   await page.mouse.click(5, 400);
@@ -183,7 +183,8 @@ test("timeline: dwell triggers analysis, pills render, promoted skipped, cache s
   assert.equal(quote?.quoted_text, "Paul Graham: The best founders are the ones who are relentlessly resourceful.");
   const reply = server.requests.find((r) => r.text.startsWith("Agreed, and the second-order"));
   assert.equal(reply?.is_reply, true);
-  assert.deepEqual(server.requests[0]!.questionIds, ["info_density", "engagement_bait", "promotion", "secondhand", "padding"]);
+  assert.deepEqual(server.requests[0]!.questionIds, ["info_density", "engagement_bait", "promotion", "secondhand", "padding", "about_jev"]);
+  assert.ok(pills.some((p) => p.dim === "about_jev" && /jev 9\d%/.test(p.text ?? "")), "jev flag");
   assert.equal(server.requests[0]!.model, "jev-1.13.0");
 
   // Every post was billed at most once even though the list recycled and remounted nodes.
@@ -286,7 +287,7 @@ test("options page: renders dimensions, test connection and save work", async (t
   page.on("pageerror", (e) => errors.push(String(e)));
   await page.goto(`chrome-extension://${extId}/options.html`);
   await page.waitForSelector(".dim");
-  assert.equal(await page.locator(".dim").count(), 5);
+  assert.equal(await page.locator(".dim").count(), 6);
   assert.equal(await page.inputValue("#model"), "jev-1.13.0");
 
   await page.fill("#apiKey", "test-key");
@@ -300,9 +301,9 @@ test("options page: renders dimensions, test connection and save work", async (t
   // Edit a threshold and add a dimension, save, and read it back from storage.
   await page.fill(".dim:nth-child(2) .d-threshold", "0.6");
   await page.click("#addDim");
-  await page.fill(".dim:nth-child(6) .d-label", "hot take");
-  await page.fill(".dim:nth-child(6) .d-id", "hot_take");
-  await page.fill(".dim:nth-child(6) .d-instructions", "Is `text` a sweeping claim stated as certain fact without evidence?");
+  await page.fill(".dim:nth-child(7) .d-label", "hot take");
+  await page.fill(".dim:nth-child(7) .d-id", "hot_take");
+  await page.fill(".dim:nth-child(7) .d-instructions", "Is `text` a sweeping claim stated as certain fact without evidence?");
   await page.click("#save");
   await page.waitForFunction(() => document.querySelector("#saveOut")?.textContent === "saved");
   const saved = (await sw.evaluate(async () => (await chrome.storage.local.get("settings")).settings)) as {
@@ -310,17 +311,17 @@ test("options page: renders dimensions, test connection and save work", async (t
     dimensions: { id: string; threshold: number }[];
   };
   assert.equal(saved.apiKey, "test-key");
-  assert.equal(saved.dimensions.length, 6);
+  assert.equal(saved.dimensions.length, 7);
   assert.equal(saved.dimensions[1]!.threshold, 0.6);
-  assert.equal(saved.dimensions[5]!.id, "hot_take");
+  assert.equal(saved.dimensions[6]!.id, "hot_take");
 
   // Validation blocks a broken dimension.
-  await page.fill(".dim:nth-child(6) .d-id", "Not Valid");
+  await page.fill(".dim:nth-child(7) .d-id", "Not Valid");
   await page.click("#save");
   await page.waitForFunction(() => /fix 1 problem/.test(document.querySelector("#saveOut")?.textContent ?? ""));
 
   assert.deepEqual(errors, []);
-  await page.fill(".dim:nth-child(6) .d-id", "hot_take");
+  await page.fill(".dim:nth-child(7) .d-id", "hot_take");
   await page.click("#save");
   await page.waitForFunction(() => document.querySelector("#saveOut")?.textContent === "saved");
 });

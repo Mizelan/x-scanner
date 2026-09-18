@@ -14,7 +14,8 @@ export interface SeenRequest {
 
 export function fakeAnswers(state: { text: string; quoted_text?: string }, questionIds: string[]) {
   const t = state.text.toLowerCase();
-  const v = { info_density: 1.0, engagement_bait: 0.08, promotion: 0.1, secondhand: 0.2, padding: 0.5 };
+  const v = { info_density: 1.0, engagement_bait: 0.08, promotion: 0.1, secondhand: 0.2, padding: 0.5, about_jev: 0.03 };
+  if (/typesafe|jev 1\.|system one/.test(t)) v.about_jev = 0.96;
   if (/rt if|follow me|bookmark this|wrong answers only|轉發|追蹤/.test(t)) v.engagement_bait = 0.97;
   if (/gumroad|pre-order|grab it|price goes up/.test(t)) v.promotion = 0.95;
   if (state.quoted_text && t.length < 20) {

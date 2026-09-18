@@ -16,5 +16,7 @@
   { "key": "hot_take", "handle": "officebro", "name": "Office Bro", "text": "Remote work is over. Every serious company is back in the office by 2027.\n\nBookmark this." },
   { "key": "image_only", "handle": "photos", "name": "Photos", "text": "", "media": true },
   { "key": "howto", "handle": "shellwizard", "name": "Shell Wizard", "text": "Find the 10 largest files under the current directory:\n\nfind . -type f -printf '%s %p\\n' | sort -nr | head -10\n\nOn macOS use gfind from coreutils." },
-  { "key": "vague_praise", "handle": "hypeman", "name": "Hype Man", "text": "Absolutely incredible work by the team. Huge things coming. Stay tuned." }
+  { "key": "vague_praise", "handle": "hypeman", "name": "Hype Man", "text": "Absolutely incredible work by the team. Huge things coming. Stay tuned." },
+  { "key": "jev_launch", "handle": "ainews", "name": "AI News", "text": "TypeSafe just shipped Jev 1.13: a System One model that returns typed probabilities instead of text. About 150 ms a call, $0.042 per million input tokens. Docs at docs.typesafe.ai" },
+  { "key": "jev_person", "handle": "dinnerclub", "name": "Dinner Club", "text": "Had dinner with Jev last night. He makes a mean risotto." }
 ]

@@ -1,11 +1,11 @@
 import type { Dimension, LifetimeStats, Settings } from "./types.ts";
-import { DEFAULT_DIMENSIONS } from "./questions.ts";
+import { ADDED_IN_VERSION, DEFAULT_DIMENSIONS } from "./questions.ts";
 import { DEFAULT_BASE_URL, DEFAULT_MODEL, DEFAULT_PRICE_PER_MTOK } from "./jev.ts";
 
 export const SETTINGS_KEY = "settings";
 export const STATS_KEY = "stats";
-/** v1: dwell defaulted to 200 ms. v2: dwell 0 and an 800 px look-ahead. v3: scope defaults to all of X. */
-export const SETTINGS_VERSION = 3;
+/** v1: dwell 200 ms. v2: dwell 0 and an 800 px look-ahead. v3: scope defaults to all of X. v4: about_jev dimension. */
+export const SETTINGS_VERSION = 4;
 
 export const DEFAULT_SETTINGS: Settings = {
   enabled: true,
@@ -31,7 +31,15 @@ export function normalizeSettings(raw: unknown): Settings {
   const dwellRaw = version < 2 && Number(r.dwellMs) === 200 ? 0 : r.dwellMs;
   // v1 and v2 saved the old "home" default; follow the new default.
   const scopeRaw = version < 3 && r.scope === "home" ? "all" : r.scope;
-  const dims = Array.isArray(r.dimensions) && r.dimensions.length ? r.dimensions.map(normalizeDimension).map(migrateLabel) : DEFAULT_DIMENSIONS;
+  const dims = Array.isArray(r.dimensions) && r.dimensions.length ? r.dimensions.map(normalizeDimension).map(migrateLabel) : [...DEFAULT_DIMENSIONS];
+  // Defaults added after this install's version are appended; ones the user deleted later stay deleted.
+  for (const [v, ids] of Object.entries(ADDED_IN_VERSION)) {
+    if (version >= Number(v)) continue;
+    for (const id of ids) {
+      const def = DEFAULT_DIMENSIONS.find((d) => d.id === id);
+      if (def && !dims.some((d) => d.id === id)) dims.push(def);
+    }
+  }
   return {
     enabled: typeof r.enabled === "boolean" ? r.enabled : DEFAULT_SETTINGS.enabled,
     apiKey: typeof r.apiKey === "string" ? r.apiKey.trim() : "",

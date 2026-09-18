@@ -11,12 +11,13 @@ test("fills defaults for a missing or partial object", () => {
   assert.equal(s.concurrency, 32);
   assert.equal(s.dwellMs, 0);
   assert.equal(s.lookaheadPx, 800);
-  assert.equal(s.version, 3);
-  assert.equal(s.dimensions.length, 5);
+  assert.equal(s.version, 4);
+  assert.equal(s.dimensions.length, 6);
 });
 
 test("keeps custom dimensions and normalizes their shape", () => {
   const s = normalizeSettings({
+    version: 4,
     dimensions: [{ id: "x", label: "x", type: "noul", instructions: "?", threshold: "0.7" }],
   });
   assert.equal(s.dimensions.length, 1);
@@ -46,4 +47,18 @@ test("moves a pre-v3 install's saved home scope to all, keeps a deliberate v3 ch
   assert.equal(normalizeSettings({ scope: "home" }).scope, "all");
   assert.equal(normalizeSettings({ scope: "home", version: 2 }).scope, "all");
   assert.equal(normalizeSettings({ scope: "home", version: 3 }).scope, "home");
+});
+
+test("appends dimensions added after the stored version, but not ones the user removed since", () => {
+  const five = { id: "x", label: "x", type: "noul", instructions: "?", threshold: 0.5 };
+  const old = normalizeSettings({ dimensions: [five], version: 3 });
+  assert.deepEqual(
+    old.dimensions.map((d) => d.id),
+    ["x", "about_jev"],
+  );
+  const current = normalizeSettings({ dimensions: [five], version: 4 });
+  assert.deepEqual(
+    current.dimensions.map((d) => d.id),
+    ["x"],
+  );
 });

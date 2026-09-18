@@ -5,7 +5,7 @@ TypeSafe's System One model, with a counter in the corner showing exactly what i
 
 https://github.com/user-attachments/assets/bd9782e9-cd8d-426b-8585-e3473a007d11
 
-Each post is sent to Jev with five typed questions in one request as soon as it comes within 800 px
+Each post is sent to Jev with six typed questions in one request as soon as it comes within 800 px
 of the viewport. The answer comes back in about 150 ms as numbers, not prose, and lands in a chip
 under the post, usually before you have scrolled to it. Most posts
 come back clean. The ones that don't get an orange flag. Scroll for a minute and the panel reads
@@ -15,7 +15,7 @@ something like 80 posts, $0.0027.
 
 **Under each post**, a chip styled like X's own metadata line:
 
-- `✓ clean` in green when nothing crossed a threshold, followed by all five values in gray.
+- `✓ clean` in green when nothing crossed a threshold, followed by every value in gray.
 - `⚑ engagement bait 97%` in orange when something did, followed by the rest in gray.
 - `no text to analyze` or `promoted, not analyzed` in dashed gray for posts that are skipped.
 - Click the chip for a card with a bar per dimension, the token count, cost and latency of that call.
@@ -24,9 +24,10 @@ something like 80 posts, $0.0027.
 call's latency, and judgments per second. The dollar figure is exact, not estimated: Jev returns
 `usage.input_tokens` with every answer.
 
-## The five dimensions
+## The six dimensions
 
-All five judge the text's behavior. None judge the author. Every one is editable in settings.
+Five judge the text's behavior, one is a topic check. None judge the author. Every one is editable in
+settings.
 
 | label | type | question, in short | flags when |
 | --- | --- | --- | --- |
@@ -35,6 +36,7 @@ All five judge the text's behavior. None judge the author. Every one is editable
 | `promo` | Noul | is it pushing a product, course, newsletter, community, or paid offer | ≥ 75% |
 | `secondhand` | Noul | does it only relay someone else's view without adding its own argument | ≥ 75% |
 | `filler` | Score, 3 levels | how much of it is filler relative to the information it carries | ≥ 1.5 of 2 |
+| `jev` | Noul | is the post about Jev or TypeSafe (not a person named Jev) | ≥ 75% |
 
 A Noul answer is Jev's probability that the answer is yes. A Score answer is a position on ordered
 levels you describe. `fact-dense`, the one positive label, uses these four:
@@ -49,15 +51,15 @@ question's wording, its levels, or the model, and the result cache is dropped.
 
 ## Cost and speed
 
-Measured on 2026-09-18 with `jev-1.13.0` over the 16 sample posts in `test/fixture/samples.json`.
+Measured on 2026-09-18 with `jev-1.13.0` over the 18 sample posts in `test/fixture/samples.json`.
 `npm run calibrate` reproduces it for under a tenth of a cent.
 
 | | |
 | --- | --- |
-| input tokens per post | 787 on average, about 600 of them the five questions themselves |
-| cost per post | $0.000033 |
-| cost per 1,000 posts | $0.033 |
-| latency per call | 179 ms on average, first call of a session around 350 ms |
+| input tokens per post | 906 on average, about 720 of them the six questions themselves |
+| cost per post | $0.000038 |
+| cost per 1,000 posts | $0.038 |
+| latency per call | 174 ms on average, first call of a session around 350 ms |
 | price basis | $0.042 per million input tokens, output free ([docs.typesafe.ai/models](https://docs.typesafe.ai/models)) |
 
 ## Install
@@ -100,7 +102,7 @@ CJK is handled but not equally well. The post text goes in as written, in whatev
   they actually stopped on.
 - The content script extracts the post id, text, quoted text and reply flag, and asks the service
   worker to analyze. Only the service worker holds the API key.
-- One `POST /v1/systemone` per post carries all five questions. Retries follow the official SDKs:
+- One `POST /v1/systemone` per post carries all six questions. Retries follow the official SDKs:
   429 and 529 back off, everything else fails fast.
 - At most 6 requests are in flight; the rest queue in order. A queued post that scrolls out of the
   zone before its turn is dropped, so a fast flick past fifty posts does not bill fifty calls. Set
@@ -113,7 +115,7 @@ CJK is handled but not equally well. The post text goes in as written, in whatev
 src/
   background.ts         service worker: holds the key, calls Jev, keeps lifetime totals
   shared/
-    questions.ts        the five default dimensions, request builder, cache hash
+    questions.ts        the six default dimensions, request builder, cache hash
     jev.ts              HTTP client with backoff, cost math
     settings.ts         schema, defaults, normalization
   content/
@@ -163,14 +165,14 @@ set `CHROME_PATH`). Branded Google Chrome no longer accepts `--load-extension`.
 
 ## 中文說明
 
-一個 Chrome 外掛。你在 X 上滑到的每則推文，一接近畫面（預設提前 800 px）就送去 Jev 做五個維度的文本
-行為判斷：資訊密度、Engagement bait、推銷、轉述、灌水。五題併在同一個 request，約 150 毫秒回來。結果顯示
-在推文下方的一個小框：沒有超過門檻就是綠色的 ✓ clean，有的話橘色標出，後面接五個維度的數值；點一下看完整
+一個 Chrome 外掛。你在 X 上滑到的每則推文，一接近畫面（預設提前 800 px）就送去 Jev 做六個維度的判斷：
+資訊密度、Engagement bait、推銷、轉述、灌水，以及是否在談 Jev 本身。六題併在同一個 request，約 150 毫秒回來。結果顯示
+在推文下方的一個小框：沒有超過門檻就是綠色的 ✓ clean，有的話橘色標出，後面接每個維度的數值；點一下看完整
 細節。右下角面板即時顯示本次分析則數、累計花費（小數點後四位，用 Jev 回傳的 token 數精確計算）、上一次呼叫
 延遲、每秒判斷數。
 
 同時進行的請求上限 6，超過排隊；滑走的推文自動離隊不計費。結果以推文 ID 快取，回捲、重新整理都不重新計費。
-廣告與純圖片推文不送出。無後端、無資料蒐集，API key 只存在本機。五個問題與門檻都可在設定頁編輯。提示詞預設
+廣告與純圖片推文不送出。無後端、無資料蒐集，API key 只存在本機。所有問題與門檻都可在設定頁編輯。提示詞預設
 英文，因為 Jev 文件說明英文準確度最佳；推文本身以原文送出。
 
 ## License
