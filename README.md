@@ -3,12 +3,6 @@
 Behavioral labels on every post you scroll past on X, judged by [Jev](https://docs.typesafe.ai),
 TypeSafe's System One model, with a counter in the corner showing exactly what it cost.
 
-![x-scanner on the fixture timeline](docs/screenshot.png)
-
-*Captured on the test fixture, which mimics X's markup. On x.com it looks the same.*
-
-Thirty seconds on a live timeline:
-
 https://github.com/user-attachments/assets/bd9782e9-cd8d-426b-8585-e3473a007d11
 
 Each post is sent to Jev with five typed questions in one request as soon as it comes within 800 px
@@ -144,7 +138,7 @@ scripts/calibrate.ts    runs the defaults against the samples on the real API
 ```sh
 npm run watch        # rebuild dist/ on change
 npm test             # unit tests
-npm run test:e2e     # loads the built extension into Chrome for Testing (SCREENSHOT=1 refreshes docs/screenshot.png)
+npm run test:e2e     # loads the built extension into Chrome for Testing (SCREENSHOT=1 also writes docs/screenshot.png)
 npm run calibrate    # real Jev calls over the sample posts (needs TYPESAFE_API_KEY in the env)
 npm run typecheck
 ```
