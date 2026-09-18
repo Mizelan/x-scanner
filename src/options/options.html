@@ -36,7 +36,10 @@
             <label>Concurrent requests <input id="concurrency" type="number" min="1" max="32" /></label>
           </div>
           <div class="row">
-            <label>Dwell before analyzing, ms <input id="dwellMs" type="number" min="0" max="5000" /></label>
+            <label>Analyze ahead, px below the viewport <input id="lookaheadPx" type="number" min="0" max="5000" /></label>
+            <label>Wait before analyzing, ms <input id="dwellMs" type="number" min="0" max="5000" /></label>
+          </div>
+          <div class="row">
             <label>Result cache size, posts <input id="cacheMax" type="number" min="100" max="100000" /></label>
           </div>
         </details>

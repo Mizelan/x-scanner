@@ -30,10 +30,15 @@ export interface Settings {
   scope: "home" | "all";
   /** If set, only run when the logged in account matches this handle (without @). */
   accountHandle: string;
+  /** How long a post must stay in view before it is sent. 0 sends as soon as it appears. */
   dwellMs: number;
+  /** Also analyze posts this many px below the viewport, so verdicts are ready before you reach them. */
+  lookaheadPx: number;
   concurrency: number;
   cacheMax: number;
   dimensions: Dimension[];
+  /** Bumped when a default changes in a way stored settings should follow. */
+  version: number;
 }
 
 /** What we send to Jev as `state`. No author identity, on purpose. */

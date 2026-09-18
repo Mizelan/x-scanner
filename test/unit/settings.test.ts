@@ -10,6 +10,8 @@ test("fills defaults for a missing or partial object", () => {
   assert.equal(s.scope, "home");
   assert.equal(s.concurrency, 32);
   assert.equal(s.dwellMs, 0);
+  assert.equal(s.lookaheadPx, 800);
+  assert.equal(s.version, 2);
   assert.equal(s.dimensions.length, 5);
 });
 
@@ -32,4 +34,10 @@ test("migrates renamed default labels but leaves custom labels alone", () => {
   });
   assert.equal(s.dimensions[0]!.label, "fact-dense");
   assert.equal(s.dimensions[1]!.label, "my own word");
+});
+
+test("moves a v1 install's saved 200 ms dwell to the new default, keeps a deliberate value", () => {
+  assert.equal(normalizeSettings({ dwellMs: 200 }).dwellMs, 0);
+  assert.equal(normalizeSettings({ dwellMs: 350 }).dwellMs, 350);
+  assert.equal(normalizeSettings({ dwellMs: 200, version: 2 }).dwellMs, 200);
 });

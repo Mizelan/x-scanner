@@ -7,8 +7,9 @@ TypeSafe's System One model, with a counter in the corner showing exactly what i
 
 *Captured on the test fixture, which mimics X's markup. On x.com it looks the same.*
 
-A post that stays on screen for 200 ms is sent to Jev with five typed questions in one request. The
-answer comes back in about 150 ms as numbers, not prose, and lands in a chip under the post. Most posts
+Each post is sent to Jev with five typed questions in one request as soon as it comes within 800 px
+of the viewport. The answer comes back in about 150 ms as numbers, not prose, and lands in a chip
+under the post, usually before you have scrolled to it. Most posts
 come back clean. The ones that don't get an orange flag. Scroll for a minute and the panel reads
 something like 80 posts, $0.0027.
 
@@ -87,7 +88,7 @@ post text to `api.typesafe.ai`. No server, no analytics.
 - **Dimensions**: add, remove, disable, rename, switch between Noul and Score, edit the question, levels
   and criteria, set the threshold and whether the flag fires above or below it.
 - **Advanced**: model (pinned to `jev-1.13.0` so thresholds keep their meaning), price, base URL,
-  concurrency, dwell time, cache size.
+  concurrency, look-ahead distance, wait before analyzing, cache size.
 - **Lifetime**: totals across sessions, a reset, and a cache clear.
 
 The questions default to English on purpose. Jev's docs say English is where its accuracy is best and
@@ -96,7 +97,9 @@ CJK is handled but not equally well. The post text goes in as written, in whatev
 ## How it works
 
 - A MutationObserver picks up each `article` X mounts in its virtualized timeline; an
-  IntersectionObserver starts a 200 ms timer when at least half of it is on screen.
+  IntersectionObserver with an 800 px bottom margin fires as soon as a post is near the viewport.
+  A wait before sending is available in settings for people who would rather pay only for posts
+  they actually stopped on.
 - The content script extracts the post id, text, quoted text and reply flag, and asks the service
   worker to analyze. Only the service worker holds the API key.
 - One `POST /v1/systemone` per post carries all five questions. Retries follow the official SDKs:
@@ -161,7 +164,7 @@ set `CHROME_PATH`). Branded Google Chrome no longer accepts `--load-extension`.
 
 ## 中文說明
 
-一個 Chrome 外掛。你在 X 上滑到的每則推文，只要在畫面停留超過 200 毫秒，就會送去 Jev 做五個維度的文本
+一個 Chrome 外掛。你在 X 上滑到的每則推文，一接近畫面（預設提前 800 px）就送去 Jev 做五個維度的文本
 行為判斷：資訊密度、Engagement bait、推銷、轉述、灌水。五題併在同一個 request，約 150 毫秒回來。結果顯示
 在推文下方的一個小框：沒有超過門檻就是綠色的 ✓ clean，有的話橘色標出，後面接五個維度的數值；點一下看完整
 細節。右下角面板即時顯示本次分析則數、累計花費（小數點後四位，用 Jev 回傳的 token 數精確計算）、上一次呼叫

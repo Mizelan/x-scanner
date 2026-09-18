@@ -2,7 +2,9 @@ import { SEL } from "./selectors.ts";
 
 export interface WatcherOptions {
   dwellMs: number;
-  /** Smallest visible fraction, or visible height in px, that counts as "in view". */
+  /** Extend the viewport downward by this many px so posts are analyzed before they appear. */
+  lookaheadPx?: number;
+  /** Optional stricter "in view" rule: smallest visible fraction, or visible height in px. Default: any pixel. */
   minRatio?: number;
   minVisiblePx?: number;
   onMount(article: HTMLElement): void;
@@ -25,15 +27,18 @@ export class TweetWatcher {
 
   constructor(opts: WatcherOptions) {
     this.opts = opts;
-    this.minRatio = opts.minRatio ?? 0.5;
-    this.minVisiblePx = opts.minVisiblePx ?? 240;
+    this.minRatio = opts.minRatio ?? 0;
+    this.minVisiblePx = opts.minVisiblePx ?? 0;
     this.mo = new MutationObserver((records) => {
       for (const r of records) {
         for (const n of Array.from(r.addedNodes)) this.scan(n);
         for (const n of Array.from(r.removedNodes)) this.unscan(n);
       }
     });
-    this.io = new IntersectionObserver((entries) => this.onIntersect(entries), { threshold: [0, 0.25, 0.5, 0.75, 1] });
+    this.io = new IntersectionObserver((entries) => this.onIntersect(entries), {
+      threshold: [0, 0.25, 0.5, 0.75, 1],
+      rootMargin: `0px 0px ${Math.max(0, opts.lookaheadPx ?? 0)}px 0px`,
+    });
   }
 
   start(root: Node = document.body): void {
@@ -79,6 +84,10 @@ export class TweetWatcher {
       const visible = e.isIntersecting && (e.intersectionRatio >= this.minRatio || e.intersectionRect.height >= this.minVisiblePx);
       if (visible) {
         if (this.timers.has(el)) continue;
+        if (this.opts.dwellMs <= 0) {
+          this.opts.onDwell(el);
+          continue;
+        }
         const t = window.setTimeout(() => {
           this.timers.delete(el);
           if (el.isConnected) this.opts.onDwell(el);

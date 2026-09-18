@@ -4,6 +4,8 @@ import { DEFAULT_BASE_URL, DEFAULT_MODEL, DEFAULT_PRICE_PER_MTOK } from "./jev.t
 
 export const SETTINGS_KEY = "settings";
 export const STATS_KEY = "stats";
+/** v1: dwell defaulted to 200 ms. v2: dwell 0 and an 800 px look-ahead. */
+export const SETTINGS_VERSION = 2;
 
 export const DEFAULT_SETTINGS: Settings = {
   enabled: true,
@@ -13,15 +15,20 @@ export const DEFAULT_SETTINGS: Settings = {
   pricePerMtok: DEFAULT_PRICE_PER_MTOK,
   scope: "home",
   accountHandle: "",
-  dwellMs: 200,
+  dwellMs: 0,
+  lookaheadPx: 800,
   concurrency: 6,
   cacheMax: 5000,
   dimensions: DEFAULT_DIMENSIONS,
+  version: SETTINGS_VERSION,
 };
 
 /** Fill in anything missing from an older or partial settings object. Never throws. */
 export function normalizeSettings(raw: unknown): Settings {
   const r = (raw && typeof raw === "object" ? raw : {}) as Partial<Settings>;
+  const version = Number.isFinite(r.version) ? Number(r.version) : 1;
+  // v1 installs saved the old 200 ms default into storage; carry them to the new default.
+  const dwellRaw = version < 2 && Number(r.dwellMs) === 200 ? 0 : r.dwellMs;
   const dims = Array.isArray(r.dimensions) && r.dimensions.length ? r.dimensions.map(normalizeDimension).map(migrateLabel) : DEFAULT_DIMENSIONS;
   return {
     enabled: typeof r.enabled === "boolean" ? r.enabled : DEFAULT_SETTINGS.enabled,
@@ -31,10 +38,12 @@ export function normalizeSettings(raw: unknown): Settings {
     pricePerMtok: finiteOr(r.pricePerMtok, DEFAULT_PRICE_PER_MTOK),
     scope: r.scope === "all" ? "all" : "home",
     accountHandle: typeof r.accountHandle === "string" ? r.accountHandle.replace(/^@/, "").trim() : "",
-    dwellMs: clamp(Number(r.dwellMs), 0, 5000, DEFAULT_SETTINGS.dwellMs),
+    dwellMs: clamp(Number(dwellRaw), 0, 5000, DEFAULT_SETTINGS.dwellMs),
+    lookaheadPx: clamp(Number(r.lookaheadPx), 0, 5000, DEFAULT_SETTINGS.lookaheadPx),
     concurrency: clamp(Number(r.concurrency), 1, 32, DEFAULT_SETTINGS.concurrency),
     cacheMax: clamp(Number(r.cacheMax), 100, 100000, DEFAULT_SETTINGS.cacheMax),
     dimensions: dims,
+    version: SETTINGS_VERSION,
   };
 }
 

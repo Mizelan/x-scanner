@@ -83,6 +83,7 @@ class App {
       this.hud.message(null);
       this.watcher = new TweetWatcher({
         dwellMs: this.settings.dwellMs,
+        lookaheadPx: this.settings.lookaheadPx,
         onMount: (a) => this.onMount(a),
         onDwell: (a) => this.onDwell(a),
         onLeave: (a) => this.onLeave(a),

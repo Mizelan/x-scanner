@@ -20,6 +20,7 @@ function fillForm(s: Settings): void {
   $<HTMLInputElement>("#baseUrl").value = s.baseUrl;
   $<HTMLInputElement>("#concurrency").value = String(s.concurrency);
   $<HTMLInputElement>("#dwellMs").value = String(s.dwellMs);
+  $<HTMLInputElement>("#lookaheadPx").value = String(s.lookaheadPx);
   $<HTMLInputElement>("#cacheMax").value = String(s.cacheMax);
   $<HTMLInputElement>("#enabled").checked = s.enabled;
   $<HTMLSelectElement>("#scope").value = s.scope;
@@ -116,6 +117,7 @@ function readForm(): { settings: Settings; problems: number } {
     baseUrl: $<HTMLInputElement>("#baseUrl").value,
     concurrency: Number($<HTMLInputElement>("#concurrency").value),
     dwellMs: Number($<HTMLInputElement>("#dwellMs").value),
+    lookaheadPx: Number($<HTMLInputElement>("#lookaheadPx").value),
     cacheMax: Number($<HTMLInputElement>("#cacheMax").value),
     enabled: $<HTMLInputElement>("#enabled").checked,
     scope: $<HTMLSelectElement>("#scope").value,
