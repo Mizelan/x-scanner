@@ -140,7 +140,7 @@ scripts/calibrate.ts    runs the defaults against the samples on the real API
 ```sh
 npm run watch        # rebuild dist/ on change
 npm test             # unit tests
-npm run test:e2e     # loads the built extension into Chrome for Testing
+npm run test:e2e     # loads the built extension into Chrome for Testing (SCREENSHOT=1 refreshes docs/screenshot.png)
 npm run calibrate    # real Jev calls over the sample posts (needs TYPESAFE_API_KEY in the env)
 npm run typecheck
 ```

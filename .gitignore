@@ -3,4 +3,4 @@ dist/
 dist-e2e/
 .env
 .DS_Store
-test/e2e/.profile/
+test/e2e/.profile*/

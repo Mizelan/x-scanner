@@ -103,10 +103,12 @@ test("timeline: dwell triggers analysis, pills render, promoted skipped, cache s
     await page.waitForTimeout(350);
   }
 
-  // Screenshot for the README while the session counters are still moving.
+  // README screenshot while the session counters are still moving: SCREENSHOT=1 npm run test:e2e
   await page.waitForTimeout(500);
-  mkdirSync(path.join(ROOT, "docs"), { recursive: true });
-  await page.screenshot({ path: path.join(ROOT, "docs/screenshot.png") });
+  if (process.env.SCREENSHOT) {
+    mkdirSync(path.join(ROOT, "docs"), { recursive: true });
+    await page.screenshot({ path: path.join(ROOT, "docs/screenshot.png") });
+  }
   await page.waitForTimeout(1500);
 
   const hud = await page.evaluate(() => {
@@ -321,6 +323,4 @@ test("options page: renders dimensions, test connection and save work", async (t
   await page.fill(".dim:nth-child(6) .d-id", "hot_take");
   await page.click("#save");
   await page.waitForFunction(() => document.querySelector("#saveOut")?.textContent === "saved");
-  await page.evaluate(() => window.scrollTo(0, 0));
-  await page.screenshot({ path: path.join(ROOT, "docs/options.png"), fullPage: false });
 });
