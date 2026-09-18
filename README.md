@@ -5,6 +5,8 @@ TypeSafe's System One model, with a counter in the corner showing exactly what i
 
 ![x-scanner on the fixture timeline](docs/screenshot.png)
 
+*Captured on the test fixture, which mimics X's markup. On x.com it looks the same.*
+
 A post that stays on screen for 200 ms is sent to Jev with five typed questions in one request. The
 answer comes back in about 150 ms as numbers, not prose, and lands in a chip under the post. Most posts
 come back clean. The ones that don't get an orange flag. Scroll for a minute and the panel reads
