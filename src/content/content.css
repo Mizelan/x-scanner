@@ -1,0 +1,106 @@
+/* Label slot: fixed height, reserved at mount so results never shift the layout. */
+.xs-slot {
+  height: 22px;
+  margin: 2px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 260ms ease;
+  color: rgb(113, 118, 123);
+  font: 500 11px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  pointer-events: auto;
+}
+.xs-slot.xs-in {
+  opacity: 1;
+}
+.xs-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 8px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.xs-slot[data-state="error"]::before {
+  content: "!";
+  opacity: 0.45;
+}
+
+/* HUD */
+.xs-hud {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 2147483647;
+  min-width: 212px;
+  padding: 10px 12px 9px;
+  border-radius: 10px;
+  background: rgba(8, 8, 8, 0.86);
+  color: #e7e9ea;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
+  font: 11px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  user-select: none;
+}
+.xs-hud-title {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  margin-bottom: 5px;
+  cursor: pointer;
+}
+.xs-hud-tog {
+  opacity: 0.5;
+}
+.xs-hud-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+}
+.xs-hud-k {
+  opacity: 0.55;
+}
+.xs-hud-v {
+  font-variant-numeric: tabular-nums;
+}
+.xs-hud-foot {
+  margin-top: 5px;
+  font-size: 10px;
+  opacity: 0.45;
+}
+.xs-hud-msg {
+  max-width: 240px;
+  opacity: 0.9;
+}
+.xs-hud a,
+.xs-hud .xs-link {
+  color: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.xs-hud-gear {
+  display: block;
+  margin-top: 4px;
+  font-size: 10px;
+  opacity: 0.4;
+}
+.xs-hud-gear:hover {
+  opacity: 0.8;
+}
+.xs-hud.xs-collapsed .xs-hud-body,
+.xs-hud.xs-collapsed .xs-hud-msg {
+  display: none;
+}
+.xs-hud.xs-collapsed {
+  min-width: 0;
+}
+.xs-hud.xs-collapsed .xs-hud-title {
+  margin-bottom: 0;
+}

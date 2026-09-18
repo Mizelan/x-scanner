@@ -1,0 +1,20 @@
+[
+  { "key": "bait_founder", "handle": "founderlessons", "name": "Founder Lessons", "text": "Most people will never understand this about building a startup.\n\nIt is not about the idea. It is about the founder.\n\nRT if you agree and follow me for more founder lessons." },
+  { "key": "dense_pricing", "handle": "demo_user", "name": "API Notes", "text": "Jev 1.13 pricing: $0.042 per 1M input tokens, output free. Rate limit 1,200 req/min, 250k tok/s. 64k context, 32k for state + longest question. Source: docs.typesafe.ai/models" },
+  { "key": "quote_this", "handle": "vc_takes", "name": "VC Takes", "text": "This.", "quoted": "Paul Graham: The best founders are the ones who are relentlessly resourceful." },
+  { "key": "promo_course", "handle": "notionguy", "name": "Notion Guy", "text": "I spent 6 months building my Notion system for indie hackers. 200+ templates, 40 dashboards, weekly updates. Grab it before the price goes up Friday: notionguy.gumroad.com/system" },
+  { "key": "padded", "handle": "deepthoughts", "name": "Deep Thoughts", "text": "Okay so I have been thinking about this a lot lately and honestly I think it is one of those things that people just do not talk about enough, you know? Like, at the end of the day, when you really think about it, it comes down to the fact that consistency matters. That is it. That is the whole thing. Consistency." },
+  { "key": "plain_opinion", "handle": "rainyday", "name": "Rainy", "text": "Coffee tastes better on rainy days." },
+  { "key": "news_relay", "handle": "marketwire", "name": "Market Wire", "text": "NYT reports the Fed is expected to cut rates by 25bps next week, according to people familiar with the discussions." },
+  { "key": "original_analysis", "handle": "growthnerd", "name": "Growth Nerd", "text": "Ran the numbers on our churn: 60% of cancellations happen in the first 14 days, and 80% of those never opened the onboarding email. Changing only the subject line recovered 11% in the next cohort (n=1,240)." },
+  { "key": "bait_zh", "handle": "viral_tw", "name": "爆文製造機", "text": "這件事 90% 的人都不知道。\n\n轉發讓更多人看到，追蹤我看更多。" },
+  { "key": "dense_zh", "handle": "chipwatch", "name": "晶片觀察", "text": "台積電 2 奈米製程 2025 年第四季量產，每片晶圓報價約 3 萬美元，較 3 奈米高出約 50%。來源：Digitimes 9/16 報導。" },
+  { "key": "question_bait", "handle": "toolsdaily", "name": "Tools Daily", "text": "What's one tool you can't work without?\n\nWrong answers only 👇" },
+  { "key": "reply_agree", "handle": "support_eng", "name": "Support Eng", "text": "Agreed, and the second-order effect is that support tickets drop too.", "reply_to": "growthnerd" },
+  { "key": "promoted_ad", "handle": "pixelphone", "name": "Pixel", "text": "Meet the new Pixel. Pre-order today and get the buds free.", "promoted": true },
+  { "key": "thread_start", "handle": "cloudcost", "name": "Cloud Cost", "text": "1/ A thread on how we cut our AWS bill by 43% in three weeks 🧵" },
+  { "key": "hot_take", "handle": "officebro", "name": "Office Bro", "text": "Remote work is over. Every serious company is back in the office by 2027.\n\nBookmark this." },
+  { "key": "image_only", "handle": "photos", "name": "Photos", "text": "", "media": true },
+  { "key": "howto", "handle": "shellwizard", "name": "Shell Wizard", "text": "Find the 10 largest files under the current directory:\n\nfind . -type f -printf '%s %p\\n' | sort -nr | head -10\n\nOn macOS use gfind from coreutils." },
+  { "key": "vague_praise", "handle": "hypeman", "name": "Hype Man", "text": "Absolutely incredible work by the team. Huge things coming. Stay tuned." }
+]

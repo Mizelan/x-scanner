@@ -1,0 +1,121 @@
+export type QuestionType = "score" | "noul";
+
+/** One analysis dimension. Becomes one typed Jev question and, when it crosses its threshold, one pill. */
+export interface Dimension {
+  /** Stable key, also the question id sent to Jev (ids are never seen by the model). */
+  id: string;
+  /** Pill text. */
+  label: string;
+  type: QuestionType;
+  instructions: string;
+  /** Score only: ordered level descriptions, lowest first. 2 to 10 entries. */
+  levels?: string[];
+  /** Noul only: what a yes and a no mean. */
+  criteria?: { true: string; false: string };
+  /** Noul: 0..1 probability. Score: 0..levels.length-1, may be fractional. */
+  threshold: number;
+  /** Show the pill when the value is above (>=) or below (<=) the threshold. */
+  direction: "above" | "below";
+  enabled: boolean;
+}
+
+export interface Settings {
+  enabled: boolean;
+  apiKey: string;
+  model: string;
+  baseUrl: string;
+  /** USD per million input tokens. Output tokens are free on Jev. */
+  pricePerMtok: number;
+  /** "home": only x.com/home. "all": every timeline, profile, search, thread. */
+  scope: "home" | "all";
+  /** If set, only run when the logged in account matches this handle (without @). */
+  accountHandle: string;
+  dwellMs: number;
+  concurrency: number;
+  cacheMax: number;
+  dimensions: Dimension[];
+}
+
+/** What we send to Jev as `state`. No author identity, on purpose. */
+export interface TweetState {
+  text: string;
+  quoted_text?: string;
+  is_reply: boolean;
+}
+
+export interface NoulAnswer {
+  type: "noul";
+  noul: number;
+}
+export interface ScoreAnswer {
+  type: "score";
+  score: number;
+  confidence: number;
+  probabilities: Record<string, number>;
+  legend: Record<string, string>;
+}
+export interface ChoiceAnswer {
+  type: "choice";
+  choice: string;
+  confidence: number;
+  probabilities: Record<string, number>;
+}
+export type Answer = NoulAnswer | ScoreAnswer | ChoiceAnswer;
+
+export interface JevQuestion {
+  type: QuestionType;
+  instructions: string;
+  criteria?: string[] | { true: string; false: string };
+}
+
+export interface JevRequest {
+  model: string;
+  state: unknown;
+  questions: Record<string, JevQuestion>;
+}
+
+export interface JevResponse {
+  model: string;
+  answers: Record<string, Answer>;
+  usage: { input_tokens: number; output_tokens: number };
+}
+
+/** One completed analysis, as cached and as rendered. */
+export interface AnalysisResult {
+  tweetId: string;
+  model: string;
+  answers: Record<string, Answer>;
+  inputTokens: number;
+  outputTokens: number;
+  costUsd: number;
+  latencyMs: number;
+  at: number;
+  questionsHash: string;
+}
+
+export interface Verdict {
+  id: string;
+  label: string;
+  type: QuestionType;
+  value: number;
+  max: number;
+  threshold: number;
+  direction: "above" | "below";
+  show: boolean;
+}
+
+/** Messages between the content script and the service worker. */
+export type Message =
+  | { type: "analyze"; state: TweetState }
+  | { type: "testConnection" }
+  | { type: "openOptions" };
+
+export type AnalyzeReply =
+  | { ok: true; model: string; answers: Record<string, Answer>; usage: JevResponse["usage"]; latencyMs: number; costUsd: number }
+  | { ok: false; error: string; status?: number };
+
+export interface LifetimeStats {
+  analyzed: number;
+  inputTokens: number;
+  costUsd: number;
+}

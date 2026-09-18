@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>x-scanner settings</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <main class="wrap">
+      <header>
+        <h1>x-scanner</h1>
+        <p class="sub">
+          Typed Jev judgments on every post you scroll past. Only the post text goes to TypeSafe. Your key stays in this
+          browser's extension storage.
+        </p>
+      </header>
+
+      <section>
+        <h2>Connection</h2>
+        <label
+          >TypeSafe API key
+          <span class="inline">
+            <input id="apiKey" type="password" autocomplete="off" spellcheck="false" placeholder="paste your key" />
+            <button id="toggleKey" type="button" class="ghost">show</button>
+          </span>
+        </label>
+        <div class="row">
+          <label>Model <input id="model" spellcheck="false" /></label>
+          <label>Price, USD per 1M input tokens <input id="pricePerMtok" type="number" step="0.001" min="0" /></label>
+        </div>
+        <details>
+          <summary>Advanced</summary>
+          <div class="row">
+            <label>Base URL <input id="baseUrl" spellcheck="false" /></label>
+            <label>Concurrent requests <input id="concurrency" type="number" min="1" max="32" /></label>
+          </div>
+          <div class="row">
+            <label>Dwell before analyzing, ms <input id="dwellMs" type="number" min="0" max="5000" /></label>
+            <label>Result cache size, posts <input id="cacheMax" type="number" min="100" max="100000" /></label>
+          </div>
+        </details>
+        <div class="actions">
+          <button id="test" type="button">Test connection</button>
+          <span id="testOut" class="muted"></span>
+        </div>
+      </section>
+
+      <section>
+        <h2>Where it runs</h2>
+        <label class="check"><input id="enabled" type="checkbox" /> Enabled</label>
+        <div class="row">
+          <label
+            >Scope
+            <select id="scope">
+              <option value="home">Home timeline only</option>
+              <option value="all">Everywhere on X</option>
+            </select>
+          </label>
+          <label>Only when logged in as <input id="accountHandle" placeholder="handle, empty for any" spellcheck="false" /></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Dimensions</h2>
+        <p class="muted">
+          Each dimension is one typed question. All of them ride in the same request. A pill shows only when the answer
+          crosses its threshold. Thresholds, labels and direction are display policy and never re-bill a post. Editing a
+          question or the model does.
+        </p>
+        <div id="dimList"></div>
+        <div class="actions">
+          <button id="addDim" type="button">Add dimension</button>
+          <button id="resetDims" type="button" class="ghost">Reset to defaults</button>
+        </div>
+      </section>
+
+      <section>
+        <h2>Lifetime</h2>
+        <div id="statsOut" class="stats"></div>
+        <div class="actions">
+          <button id="resetStats" type="button" class="ghost">Reset counters</button>
+          <button id="clearCache" type="button" class="ghost">Clear result cache</button>
+        </div>
+      </section>
+
+      <footer class="savebar">
+        <button id="save" type="button" class="primary">Save</button>
+        <span id="saveOut" class="muted"></span>
+      </footer>
+    </main>
+    <template id="dimTemplate">
+      <div class="dim">
+        <div class="dim-head">
+          <label class="check"><input type="checkbox" class="d-enabled" /> on</label>
+          <input class="d-label" placeholder="pill text" />
+          <input class="d-id" placeholder="snake_case_id" spellcheck="false" />
+          <select class="d-type">
+            <option value="noul">Noul · yes/no probability</option>
+            <option value="score">Score · ordered levels</option>
+          </select>
+          <button type="button" class="d-remove ghost">remove</button>
+        </div>
+        <label>Question <textarea class="d-instructions" rows="2" spellcheck="false"></textarea></label>
+        <div class="d-score">
+          <label>Levels, one per line, lowest first <textarea class="d-levels" rows="4" spellcheck="false"></textarea></label>
+        </div>
+        <div class="d-noul">
+          <div class="row">
+            <label>Yes means <textarea class="d-true" rows="3" spellcheck="false"></textarea></label>
+            <label>No means <textarea class="d-false" rows="3" spellcheck="false"></textarea></label>
+          </div>
+        </div>
+        <div class="row">
+          <label
+            >Show pill when value is
+            <select class="d-direction">
+              <option value="above">at or above</option>
+              <option value="below">at or below</option>
+            </select>
+          </label>
+          <label>Threshold <input class="d-threshold" type="number" step="0.05" /> <span class="d-hint muted"></span></label>
+        </div>
+        <div class="d-problems"></div>
+      </div>
+    </template>
+    <script src="options.js"></script>
+  </body>
+</html>

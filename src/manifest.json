@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "x-scanner",
+  "version": "0.1.0",
+  "description": "Labels every post you scroll past on X with typed Jev judgments. Live cost counter in the corner. No server, no data collection.",
+  "permissions": ["storage"],
+  "host_permissions": ["https://api.typesafe.ai/*"],
+  "background": { "service_worker": "background.js" },
+  "content_scripts": [
+    {
+      "matches": ["https://x.com/*", "https://twitter.com/*"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "options_ui": { "page": "options.html", "open_in_tab": true },
+  "action": { "default_title": "x-scanner settings" },
+  "icons": { "16": "icons/16.png", "32": "icons/32.png", "48": "icons/48.png", "128": "icons/128.png" }
+}
