@@ -22,7 +22,7 @@ export const DEFAULT_SETTINGS: Settings = {
 /** Fill in anything missing from an older or partial settings object. Never throws. */
 export function normalizeSettings(raw: unknown): Settings {
   const r = (raw && typeof raw === "object" ? raw : {}) as Partial<Settings>;
-  const dims = Array.isArray(r.dimensions) && r.dimensions.length ? r.dimensions.map(normalizeDimension) : DEFAULT_DIMENSIONS;
+  const dims = Array.isArray(r.dimensions) && r.dimensions.length ? r.dimensions.map(normalizeDimension).map(migrateLabel) : DEFAULT_DIMENSIONS;
   return {
     enabled: typeof r.enabled === "boolean" ? r.enabled : DEFAULT_SETTINGS.enabled,
     apiKey: typeof r.apiKey === "string" ? r.apiKey.trim() : "",
@@ -36,6 +36,17 @@ export function normalizeSettings(raw: unknown): Settings {
     cacheMax: clamp(Number(r.cacheMax), 100, 100000, DEFAULT_SETTINGS.cacheMax),
     dimensions: dims,
   };
+}
+
+/** Default labels that were renamed after release; stored settings still carrying the old one move along. */
+const RENAMED_LABELS: Record<string, [string, string]> = {
+  info_density: ["dense", "fact-dense"],
+  padding: ["padded", "filler"],
+};
+
+function migrateLabel(d: Dimension): Dimension {
+  const r = RENAMED_LABELS[d.id];
+  return r && d.label === r[0] ? { ...d, label: r[1] } : d;
 }
 
 function normalizeDimension(d: Partial<Dimension>): Dimension {

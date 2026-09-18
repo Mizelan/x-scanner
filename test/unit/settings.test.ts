@@ -22,3 +22,14 @@ test("keeps custom dimensions and normalizes their shape", () => {
   assert.deepEqual(s.dimensions[0]!.criteria, { true: "", false: "" });
   assert.equal(s.dimensions[0]!.enabled, true);
 });
+
+test("migrates renamed default labels but leaves custom labels alone", () => {
+  const s = normalizeSettings({
+    dimensions: [
+      { id: "info_density", label: "dense", type: "score", instructions: "?", levels: ["a", "b"], threshold: 1 },
+      { id: "padding", label: "my own word", type: "score", instructions: "?", levels: ["a", "b"], threshold: 1 },
+    ],
+  });
+  assert.equal(s.dimensions[0]!.label, "fact-dense");
+  assert.equal(s.dimensions[1]!.label, "my own word");
+});

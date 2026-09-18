@@ -51,6 +51,7 @@ export function markSlot(slot: HTMLElement, state: SlotState, title?: string): v
   slot.dataset.state = state;
   if (title !== undefined) slot.title = title;
   if (state === "error" || state === "skipped") {
+    slot.dataset.verdict = "note";
     slot.textContent = "";
     const note = document.createElement("span");
     note.className = "xs-note";
@@ -71,6 +72,7 @@ export function fillSlot(slot: HTMLElement, vs: Verdict[], r: AnalysisResult): v
   data.set(slot, { vs, r });
   const hits = vs.filter((v) => v.show);
   const rest = vs.filter((v) => !v.show);
+  slot.dataset.verdict = hits.length ? "flag" : "clean";
   const parts: HTMLElement[] = [];
   if (hits.length === 0) {
     const ok = document.createElement("span");

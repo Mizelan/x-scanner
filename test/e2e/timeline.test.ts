@@ -71,6 +71,20 @@ test("timeline: dwell triggers analysis, pills render, promoted skipped, cache s
   const page = await ctx.newPage();
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(String(e)));
+  // The fixture recycles posts far from the viewport, so record every flag ever rendered.
+  await page.addInitScript(() => {
+    const seen = new Set<string>();
+    (window as unknown as { __seenFlags: Set<string> }).__seenFlags = seen;
+    new MutationObserver((records) => {
+      for (const r of records) {
+        for (const n of Array.from(r.addedNodes)) {
+          if (!(n instanceof HTMLElement)) continue;
+          const els = n.matches(".xs-flag") ? [n] : Array.from(n.querySelectorAll<HTMLElement>(".xs-flag"));
+          for (const el of els) seen.add(`${el.dataset.dim}|${el.textContent}`);
+        }
+      }
+    }).observe(document, { childList: true, subtree: true });
+  });
   await page.goto(`http://127.0.0.1:${server.port}/timeline.html?repeat=4`);
   await page.waitForFunction(() => (window as unknown as { __fixtureReady?: boolean }).__fixtureReady === true);
   await page.waitForSelector(".xs-hud", { timeout: 10000 });
@@ -110,7 +124,10 @@ test("timeline: dwell triggers analysis, pills render, promoted skipped, cache s
 
   // The right pills, and only those, appear.
   const pills = await page.evaluate(() =>
-    Array.from(document.querySelectorAll(".xs-flag")).map((p) => ({ dim: (p as HTMLElement).dataset.dim, text: p.textContent })),
+    Array.from((window as unknown as { __seenFlags: Set<string> }).__seenFlags).map((s) => {
+      const i = s.indexOf("|");
+      return { dim: s.slice(0, i), text: s.slice(i + 1) };
+    }),
   );
   assert.ok(pills.some((p) => p.dim === "engagement_bait" && /engagement bait 9\d%/.test(p.text ?? "")), "bait flag with value");
   assert.ok(pills.some((p) => p.dim === "promotion"), "promo pill");
@@ -122,13 +139,19 @@ test("timeline: dwell triggers analysis, pills render, promoted skipped, cache s
     const slot = art?.querySelector(".xs-slot") as HTMLElement | null;
     return {
       state: slot?.dataset.state,
+      verdict: slot?.dataset.verdict,
       flags: slot?.querySelectorAll(".xs-flag").length,
       ok: slot?.querySelector(".xs-ok")?.textContent,
       values: slot?.querySelectorAll(".xs-dim").length,
       afterText: slot?.previousElementSibling?.getAttribute("data-testid"),
     };
   });
-  assert.deepEqual(plain, { state: "done", flags: 0, ok: "✓ clean", values: 5, afterText: "tweetText" }, "a plain post shows a green check and all five values under its text");
+  assert.deepEqual(plain, { state: "done", verdict: "clean", flags: 0, ok: "✓ clean", values: 5, afterText: "tweetText" }, "a plain post shows a green check and all five values under its text");
+  const flagged = await page.evaluate(() => {
+    const art = Array.from(document.querySelectorAll("article")).find((a) => a.textContent?.includes("Bookmark this"));
+    return (art?.querySelector(".xs-slot") as HTMLElement | null)?.dataset.verdict;
+  });
+  assert.equal(flagged, "flag");
   const skipped = await page.evaluate(() => {
     const art = Array.from(document.querySelectorAll("article")).find((a) => a.textContent?.includes("Meet the new Pixel"));
     return art?.querySelector(".xs-note")?.textContent;
