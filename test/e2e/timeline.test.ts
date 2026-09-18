@@ -71,7 +71,7 @@ test("timeline: dwell triggers analysis, pills render, promoted skipped, cache s
   const page = await ctx.newPage();
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(String(e)));
-  await page.goto(`http://127.0.0.1:${server.port}/timeline.html?repeat=3`);
+  await page.goto(`http://127.0.0.1:${server.port}/timeline.html?repeat=4`);
   await page.waitForFunction(() => (window as unknown as { __fixtureReady?: boolean }).__fixtureReady === true);
   await page.waitForSelector(".xs-hud", { timeout: 10000 });
 
@@ -88,11 +88,12 @@ test("timeline: dwell triggers analysis, pills render, promoted skipped, cache s
     await page.mouse.wheel(0, 420);
     await page.waitForTimeout(350);
   }
-  await page.waitForTimeout(1500);
 
-  // Screenshot for the README while the session counters are live.
+  // Screenshot for the README while the session counters are still moving.
+  await page.waitForTimeout(500);
   mkdirSync(path.join(ROOT, "docs"), { recursive: true });
   await page.screenshot({ path: path.join(ROOT, "docs/screenshot.png") });
+  await page.waitForTimeout(1500);
 
   const hud = await page.evaluate(() => {
     const vals = Array.from(document.querySelectorAll(".xs-hud-v")).map((e) => e.textContent ?? "");

@@ -55,7 +55,7 @@ HUD multiplies by the list price you can edit in settings.
 Chrome 120 or newer.
 
 ```sh
-git clone https://github.com/demo_user/x-scanner
+git clone <this repository>
 cd x-scanner
 npm install
 npm run build
@@ -139,6 +139,9 @@ no longer accepts `--load-extension`.
 
 - Jev reads literally. A post that argues for its own classification can move an answer. Thresholds
   default high for that reason.
+- The DOM selectors were written from x.com's markup as of 2025 and are exercised against the fixture,
+  not against a live logged-in timeline in this repo's tests. If X has moved things, `selectors.ts` is
+  the one file to fix.
 - Promoted posts are detected by the "Ad" label text in a few UI languages plus the older
   `placementTracking` wrapper. Add your language's label in `selectors.ts` if X shows something else.
 - The five prompts are tuned on English. Run `npm run calibrate` on your own samples before trusting the

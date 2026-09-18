@@ -1,6 +1,7 @@
 /**
  * Every X DOM selector lives here. If X changes its markup, this is the file to edit.
- * Verified against x.com markup in September 2026 and the fixture in test/fixture/.
+ * Written from x.com's markup as of 2025 (article[data-testid=tweet], tweetText, role=group action
+ * bar, status permalink wrapping <time>) and exercised against the fixture in test/fixture/.
  */
 export const SEL = {
   /** One timeline entry. */
