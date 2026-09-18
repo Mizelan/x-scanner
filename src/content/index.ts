@@ -121,11 +121,11 @@ class App {
     const slot = ensureSlot(article, t.id);
     this.slots.set(t.id, slot);
     if (t.promoted) {
-      markSlot(slot, "skipped", "promoted post, skipped");
+      markSlot(slot, "skipped", "promoted, not analyzed");
       return;
     }
     if (!t.state.text) {
-      markSlot(slot, "skipped", "no text, skipped");
+      markSlot(slot, "skipped", "no text to analyze");
       return;
     }
     const cached = this.store.get(t.id);

@@ -21,8 +21,9 @@ export function verdicts(dimensions: Dimension[], answers: Record<string, Answer
   return out;
 }
 
+/** Noul as a percentage, Score as position over the top level. */
 export function formatValue(v: Verdict): string {
-  return v.type === "noul" ? v.value.toFixed(2) : `${v.value.toFixed(1)}/${v.max}`;
+  return v.type === "noul" ? `${Math.round(v.value * 100)}%` : `${v.value.toFixed(1)}/${v.max}`;
 }
 
 /** Hover text on the label slot: every raw value plus what the call cost. */

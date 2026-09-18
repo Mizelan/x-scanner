@@ -110,24 +110,35 @@ test("timeline: dwell triggers analysis, pills render, promoted skipped, cache s
 
   // The right pills, and only those, appear.
   const pills = await page.evaluate(() =>
-    Array.from(document.querySelectorAll(".xs-pill")).map((p) => ({ dim: (p as HTMLElement).dataset.dim, text: p.textContent })),
+    Array.from(document.querySelectorAll(".xs-flag")).map((p) => ({ dim: (p as HTMLElement).dataset.dim, text: p.textContent })),
   );
-  assert.ok(pills.some((p) => p.dim === "engagement_bait" && p.text === "engagement bait"), "bait pill");
+  assert.ok(pills.some((p) => p.dim === "engagement_bait" && /engagement bait 9\d%/.test(p.text ?? "")), "bait flag with value");
   assert.ok(pills.some((p) => p.dim === "promotion"), "promo pill");
-  assert.ok(pills.some((p) => p.dim === "info_density" && p.text === "dense"), "dense pill");
+  assert.ok(pills.some((p) => p.dim === "info_density" && /fact-dense 2\.\d\/3$/.test(p.text ?? "")), "fact-dense flag with value");
   assert.ok(pills.some((p) => p.dim === "padding"), "padded pill");
   assert.ok(pills.some((p) => p.dim === "secondhand"), "secondhand pill");
   const plain = await page.evaluate(() => {
     const art = Array.from(document.querySelectorAll("article")).find((a) => a.textContent?.includes("Coffee tastes better"));
     const slot = art?.querySelector(".xs-slot") as HTMLElement | null;
-    return { state: slot?.dataset.state, hits: slot?.querySelectorAll(".xs-pill-hit").length, clean: slot?.querySelectorAll(".xs-pill-clean").length, inRow: slot?.parentElement?.classList.contains("hdr") };
+    return {
+      state: slot?.dataset.state,
+      flags: slot?.querySelectorAll(".xs-flag").length,
+      ok: slot?.querySelector(".xs-ok")?.textContent,
+      values: slot?.querySelectorAll(".xs-dim").length,
+      afterText: slot?.previousElementSibling?.getAttribute("data-testid"),
+    };
   });
-  assert.deepEqual(plain, { state: "done", hits: 0, clean: 1, inRow: true }, "a plain post gets a clean pill in the header row");
+  assert.deepEqual(plain, { state: "done", flags: 0, ok: "✓ clean", values: 5, afterText: "tweetText" }, "a plain post shows a green check and all five values under its text");
+  const skipped = await page.evaluate(() => {
+    const art = Array.from(document.querySelectorAll("article")).find((a) => a.textContent?.includes("Meet the new Pixel"));
+    return art?.querySelector(".xs-note")?.textContent;
+  });
+  assert.equal(skipped, "promoted, not analyzed");
 
   // Clicking a pill opens the detail card with all five values and does not navigate.
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.waitForTimeout(400);
-  await page.click('.xs-pill[data-dim="engagement_bait"]');
+  await page.click('.xs-flag[data-dim="engagement_bait"]');
   await page.waitForSelector(".xs-detail");
   const detail = await page.evaluate(() => ({
     rows: document.querySelectorAll(".xs-detail-row").length,

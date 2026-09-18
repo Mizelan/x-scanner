@@ -3,10 +3,11 @@
 A Chrome extension that runs a behavioral read on every post you scroll past on X, using
 [TypeSafe's Jev](https://docs.typesafe.ai), and shows you exactly what it cost.
 
-Five typed questions ride in one request per post. The verdict lands in the post's header row, next
-to the menu button where X puts its own "Ad" label: a solid pill per flagged dimension, or a quiet
-"clean". Click it for every raw value. A panel in the corner counts posts, dollars to four decimals,
-last-call latency and judgments per second while you scroll.
+Five typed questions ride in one request per post. The verdict is one line under the post's text,
+styled like X's own metadata: orange flags for the dimensions that crossed their threshold, or a green
+check, followed by all five values in gray. Click it for a card with bars, tokens, cost and latency.
+A panel in the corner counts posts, dollars to four decimals, last-call latency and judgments per
+second while you scroll.
 
 ![x-scanner on the fixture timeline](docs/screenshot.png)
 
@@ -20,14 +21,14 @@ Jev server in `test/e2e/`. Real X looks the same; the pills and panel are the ex
 
   | pill | type | question, in short | default threshold |
   | --- | --- | --- | --- |
-  | `dense` | Score, 4 levels | how much specific, verifiable content the text has | ≥ 2.5 |
+  | `fact-dense` | Score, 4 levels | how much specific, verifiable content the text has (the one positive label) | ≥ 2.5 |
   | `engagement bait` | Noul | does it end by asking for replies, reposts, likes, follows, bookmarks | ≥ 0.75 |
   | `promo` | Noul | is it pushing a product, course, newsletter, community, or paid offer | ≥ 0.75 |
   | `secondhand` | Noul | does it only relay someone else's view without adding its own argument | ≥ 0.75 |
-  | `padded` | Score, 3 levels | how much of it is filler relative to the information it carries | ≥ 1.5 |
+  | `filler` | Score, 3 levels | how much of it is filler relative to the information it carries | ≥ 1.5 |
 
-- The verdict slot sits inline in the header row, so results never shift the layout or cover text.
-  Clicking a pill opens a small card with all five values, the token count, cost and latency of that call.
+- The verdict line is inserted under the text when the post mounts, before any result arrives, so a
+  result never shifts the layout. Promoted and text-less posts say so in place instead of staying silent.
 - At most 6 requests in flight; the rest queue. A queued post that scrolls away before its turn is
   dropped from the queue, so you only pay for what you actually looked at.
 - Results are cached by post id in extension storage. Scrolling back, reloading, or coming back
@@ -152,8 +153,8 @@ no longer accepts `--load-extension`.
 ## 中文說明
 
 一個 Chrome 外掛：你在 X 上滑到的每則推文，只要在畫面停留超過 200 毫秒，就會被送去 Jev 做五個固定維度
-的文本行為判斷（資訊密度、Engagement bait、推銷、轉述、灌水）。五題併在同一個 request；只有超過門檻的
-維度才會在推文下方亮出一顆單色 pill，大多數推文分析完仍是空白。右下角面板即時顯示本次分析則數、累計花費
+的文本行為判斷（資訊密度、Engagement bait、推銷、轉述、灌水）。五題併在同一個 request；結果是推文下方一行
+原生風格的文字：超過門檻的維度以橘色標出，否則綠色勾，後面接五個維度的數值。右下角面板即時顯示本次分析則數、累計花費
 （小數點後四位，用 Jev 回傳的 token 數精確計算）、上一次呼叫延遲、每秒判斷數。
 
 同時進行的請求上限 6，超過排隊；滑走的推文自動離隊不計費。結果以推文 ID 快取在 extension storage，回捲、

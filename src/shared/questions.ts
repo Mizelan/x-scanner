@@ -9,7 +9,7 @@ import { fnv1a } from "./hash.ts";
 export const DEFAULT_DIMENSIONS: Dimension[] = [
   {
     id: "info_density",
-    label: "dense",
+    label: "fact-dense",
     type: "score",
     instructions: "How much specific, verifiable content does `text` contain?",
     levels: [
@@ -65,7 +65,7 @@ export const DEFAULT_DIMENSIONS: Dimension[] = [
   },
   {
     id: "padding",
-    label: "padded",
+    label: "filler",
     type: "score",
     instructions: "How much of `text` is filler relative to the information it carries?",
     levels: [

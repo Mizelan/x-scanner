@@ -37,7 +37,7 @@ test("disabled dimensions and missing answers are skipped", () => {
 test("formatting and tooltip", () => {
   const vs = verdicts(DEFAULT_DIMENSIONS, answers);
   assert.equal(formatValue(vs[0]!), "3.0/3");
-  assert.equal(formatValue(vs[1]!), "0.99");
+  assert.equal(formatValue(vs[1]!), "99%");
   const tip = tooltip(vs, { inputTokens: 825, costUsd: 0.00003465, latencyMs: 113, model: "jev-1.13.0" });
-  assert.match(tip, /dense 3\.0\/3 · engagement bait 0\.99 · .*825 tok · \$0\.000035 · 113 ms · jev-1\.13\.0$/);
+  assert.match(tip, /fact-dense 3\.0\/3 · engagement bait 99% · .*825 tok · \$0\.000035 · 113 ms · jev-1\.13\.0$/);
 });

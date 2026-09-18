@@ -9,9 +9,8 @@ const data = new WeakMap<HTMLElement, { vs: Verdict[]; r: AnalysisResult }>();
 let openDetail: HTMLElement | null = null;
 
 /**
- * Put the verdict slot in the post's header row, right aligned before the menu button, where X
- * shows its own "Ad" label. Falls back to a floating position at the article's top right.
- * Idempotent, and inline in the row so it never shifts the layout.
+ * Put the verdict line right under the post's text (after X's own "Show more" link when there is
+ * one), styled like X's metadata lines. A post without text gets it above the action bar. Idempotent.
  */
 export function ensureSlot(article: Element, tweetId: string | null): HTMLElement {
   let slot = article.querySelector<HTMLElement>(`:scope .${SLOT_CLASS}`);
@@ -19,27 +18,27 @@ export function ensureSlot(article: Element, tweetId: string | null): HTMLElemen
     slot = document.createElement("div");
     slot.className = SLOT_CLASS;
     slot.dataset.state = "idle";
-    const row = headerRow(article);
-    if (row) {
-      const name = row.querySelector(SEL.userName)!;
-      row.insertBefore(slot, name.nextSibling);
+    const text = mainText(article);
+    if (text?.parentElement) {
+      const next = text.nextElementSibling;
+      const anchor = next && next.matches(SEL.showMore) ? next : text;
+      anchor.parentElement!.insertBefore(slot, anchor.nextSibling);
     } else {
-      slot.classList.add("xs-slot-float");
-      (article as HTMLElement).classList.add("xs-rel");
-      article.appendChild(slot);
+      const bar = article.querySelector(SEL.actionBar);
+      if (bar?.parentElement) bar.parentElement.insertBefore(slot, bar);
+      else article.appendChild(slot);
     }
   }
   if (tweetId) slot.dataset.tweetId = tweetId;
   return slot;
 }
 
-/** The flex row holding the outer post's User-Name block, or null when the markup differs. */
-function headerRow(article: Element): HTMLElement | null {
-  for (const name of Array.from(article.querySelectorAll<HTMLElement>(SEL.userName))) {
-    if (name.closest(SEL.quoteContainer) && article.contains(name.closest(SEL.quoteContainer)!)) continue;
-    const row = name.parentElement;
-    if (!row) return null;
-    return getComputedStyle(row).display.includes("flex") ? row : null;
+/** The outer post's text block, skipping the one inside a quoted post. */
+function mainText(article: Element): HTMLElement | null {
+  for (const t of Array.from(article.querySelectorAll<HTMLElement>(SEL.tweetText))) {
+    const q = t.closest(SEL.quoteContainer);
+    if (q && article.contains(q) && q !== article) continue;
+    return t;
   }
   return null;
 }
@@ -51,36 +50,57 @@ export function getSlot(article: Element): HTMLElement | null {
 export function markSlot(slot: HTMLElement, state: SlotState, title?: string): void {
   slot.dataset.state = state;
   if (title !== undefined) slot.title = title;
-  if (state === "error") {
+  if (state === "error" || state === "skipped") {
     slot.textContent = "";
-    const pill = document.createElement("span");
-    pill.className = "xs-pill xs-pill-err";
-    pill.textContent = "error";
-    slot.appendChild(pill);
+    const note = document.createElement("span");
+    note.className = "xs-note";
+    note.textContent = state === "error" ? "analysis failed" : (title ?? "skipped");
+    slot.appendChild(note);
     slot.classList.add("xs-in");
   }
 }
 
-/** Fill the slot: one solid pill per flagged dimension, or a quiet "clean" pill. Then fade in. */
+/**
+ * Fill the line: a verdict first (orange flags, or a green check), then every dimension's value in
+ * X's secondary gray, flagged ones repeated in orange so the eye lands on them. Then fade in.
+ */
 export function fillSlot(slot: HTMLElement, vs: Verdict[], r: AnalysisResult): void {
   slot.textContent = "";
   slot.dataset.state = "done";
   slot.title = "";
   data.set(slot, { vs, r });
   const hits = vs.filter((v) => v.show);
+  const rest = vs.filter((v) => !v.show);
+  const parts: HTMLElement[] = [];
   if (hits.length === 0) {
-    const pill = document.createElement("span");
-    pill.className = "xs-pill xs-pill-clean";
-    pill.textContent = "clean";
-    slot.appendChild(pill);
+    const ok = document.createElement("span");
+    ok.className = "xs-ok";
+    ok.textContent = "✓ clean";
+    parts.push(ok);
   }
   for (const v of hits) {
-    const pill = document.createElement("span");
-    pill.className = "xs-pill xs-pill-hit";
-    pill.dataset.dim = v.id;
-    pill.textContent = v.label;
-    slot.appendChild(pill);
+    const flag = document.createElement("span");
+    flag.className = "xs-flag";
+    flag.dataset.dim = v.id;
+    flag.textContent = `${hits.indexOf(v) === 0 ? "⚑ " : ""}${v.label} ${formatValue(v)}`;
+    parts.push(flag);
   }
+  for (const v of rest) {
+    const dim = document.createElement("span");
+    dim.className = "xs-dim";
+    dim.dataset.dim = v.id;
+    dim.textContent = `${v.label} ${formatValue(v)}`;
+    parts.push(dim);
+  }
+  parts.forEach((el, i) => {
+    if (i > 0) {
+      const sep = document.createElement("span");
+      sep.className = "xs-sep";
+      sep.textContent = "·";
+      slot.appendChild(sep);
+    }
+    slot.appendChild(el);
+  });
   slot.classList.remove("xs-in");
   requestAnimationFrame(() => slot.classList.add("xs-in"));
 }

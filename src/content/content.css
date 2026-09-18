@@ -1,65 +1,49 @@
-/* Verdict slot: lives in the post header row, right aligned, so it never shifts or covers text. */
+/* Verdict line: sits right under the post text, styled like X's own metadata lines. */
 .xs-slot {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
-  flex: 0 0 auto;
-  margin-left: auto;
-  margin-right: 10px;
-  height: 20px;
+  gap: 2px 6px;
+  min-height: 20px;
+  margin: 4px 0 2px;
   position: relative;
   opacity: 0;
   transition: opacity 260ms ease;
-  font: 600 12px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: rgb(113, 118, 123);
+  font: 400 13px/20px TwitterChirp, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   cursor: pointer;
-  white-space: nowrap;
 }
 .xs-slot.xs-in {
   opacity: 1;
 }
-.xs-rel {
-  position: relative;
+.xs-slot:hover .xs-dim {
+  color: inherit;
+  opacity: 0.85;
 }
-.xs-slot-float {
-  position: absolute;
-  top: 12px;
-  right: 72px;
-  margin: 0;
+.xs-ok {
+  color: rgb(0, 186, 124);
+  font-weight: 700;
 }
-.xs-pill {
-  display: inline-flex;
-  align-items: center;
-  height: 20px;
-  padding: 0 9px;
-  border-radius: 999px;
-  letter-spacing: 0.01em;
+.xs-flag {
+  color: rgb(255, 122, 0);
+  font-weight: 700;
 }
-/* Flagged: solid, high contrast, follows X's theme. */
-.xs-pill-hit {
-  background: #0f1419;
-  color: #fff;
+.xs-dim {
+  opacity: 0.75;
 }
-.xs-dark .xs-pill-hit {
-  background: #e7e9ea;
-  color: #000;
+.xs-sep {
+  opacity: 0.5;
 }
-/* Nothing flagged: quiet outline. */
-.xs-pill-clean {
-  color: rgb(113, 118, 123);
-  border: 1px solid rgba(113, 118, 123, 0.55);
-  font-weight: 500;
-}
-.xs-pill-err {
-  color: rgb(113, 118, 123);
-  border: 1px dashed rgba(113, 118, 123, 0.6);
-  font-weight: 500;
+.xs-note {
+  opacity: 0.6;
+  font-style: italic;
 }
 
 /* Detail card: opens under the slot on click. */
 .xs-detail {
   position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
+  top: calc(100% + 6px);
+  left: 0;
   z-index: 2147483646;
   width: 236px;
   padding: 10px 12px 9px;
@@ -94,6 +78,12 @@
   display: block;
   height: 100%;
   background: #e7e9ea;
+}
+.xs-detail-row.xs-hit .xs-detail-bar i {
+  background: rgb(255, 122, 0);
+}
+.xs-detail-row.xs-hit .xs-detail-k {
+  color: rgb(255, 122, 0);
 }
 .xs-detail-v {
   text-align: right;

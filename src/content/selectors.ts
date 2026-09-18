@@ -12,9 +12,9 @@ export const SEL = {
   quoteContainer: 'div[role="link"]',
   /** Permalink anchors; the one wrapping a <time> is the post's own. */
   statusLink: 'a[href*="/status/"]',
-  /** Name, handle and timestamp row. The verdict slot is inserted into its parent row, right aligned. */
-  userName: '[data-testid="User-Name"]',
-  /** Reply / repost / like bar. Fallback anchor for the verdict slot. */
+  /** "Show more" link X renders right after a long post's text. The verdict line goes after it. */
+  showMore: '[data-testid="tweet-text-show-more-link"]',
+  /** Reply / repost / like bar. Fallback anchor for the verdict line when a post has no text. */
   actionBar: 'div[role="group"]',
   /** Old style promoted wrapper, still checked. */
   placementTracking: '[data-testid="placementTracking"]',
