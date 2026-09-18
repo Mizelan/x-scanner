@@ -7,6 +7,10 @@ TypeSafe's System One model, with a counter in the corner showing exactly what i
 
 *Captured on the test fixture, which mimics X's markup. On x.com it looks the same.*
 
+Thirty seconds on a live timeline:
+
+https://github.com/user-attachments/assets/bd9782e9-cd8d-426b-8585-e3473a007d11
+
 Each post is sent to Jev with five typed questions in one request as soon as it comes within 800 px
 of the viewport. The answer comes back in about 150 ms as numbers, not prose, and lands in a chip
 under the post, usually before you have scrolled to it. Most posts
