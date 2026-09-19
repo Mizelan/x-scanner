@@ -5,3 +5,4 @@ dist-e2e/
 .DS_Store
 test/e2e/.profile*/
 docs/*.png
+*.zip

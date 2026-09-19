@@ -11,6 +11,25 @@ under the post, usually before you have scrolled to it. Most posts
 come back clean. The ones that don't get an orange flag. Scroll for a minute and the panel reads
 something like 80 posts, $0.0027.
 
+## Install
+
+Chrome 120 or newer. Until the Chrome Web Store listing is live, install from source; Node 22 or newer
+is needed to build.
+
+```sh
+git clone https://github.com/oso95/x-scanner.git
+cd x-scanner
+npm install
+npm run build
+```
+
+1. Open `chrome://extensions`, turn on Developer mode, click **Load unpacked**, choose the `dist/` folder.
+2. Click the x-scanner icon. Paste your TypeSafe API key, click **Test connection**, then **Save**.
+3. Open [x.com](https://x.com) and scroll: home, profiles, search, threads, lists.
+
+Your key lives in this browser's extension storage and nowhere else. The only network traffic is the
+post text to `api.typesafe.ai`. No server, no analytics.
+
 ## What you see
 
 **Under each post**, a chip styled like X's own metadata line:
@@ -61,24 +80,6 @@ Measured on 2026-09-18 with `jev-1.13.0` over the 18 sample posts in `test/fixtu
 | cost per 1,000 posts | $0.038 |
 | latency per call | 174 ms on average, first call of a session around 350 ms |
 | price basis | $0.042 per million input tokens, output free ([docs.typesafe.ai/models](https://docs.typesafe.ai/models)) |
-
-## Install
-
-Chrome 120 or newer, Node 22 or newer to build.
-
-```sh
-git clone https://github.com/oso95/x-scanner.git
-cd x-scanner
-npm install
-npm run build
-```
-
-1. Open `chrome://extensions`, turn on Developer mode, click **Load unpacked**, choose the `dist/` folder.
-2. Click the x-scanner icon. Paste your TypeSafe API key, click **Test connection**, then **Save**.
-3. Open [x.com](https://x.com) and scroll: home, profiles, search, threads, lists.
-
-Your key lives in this browser's extension storage and nowhere else. The only network traffic is the
-post text to `api.typesafe.ai`. No server, no analytics.
 
 ## Settings
 
@@ -138,12 +139,16 @@ scripts/calibrate.ts    runs the defaults against the samples on the real API
 ## Development
 
 ```sh
+npm run package      # build and zip dist/ for the Chrome Web Store
 npm run watch        # rebuild dist/ on change
 npm test             # unit tests
 npm run test:e2e     # loads the built extension into Chrome for Testing (SCREENSHOT=1 also writes docs/screenshot.png)
 npm run calibrate    # real Jev calls over the sample posts (needs TYPESAFE_API_KEY in the env)
+npm run screenshots  # 1280x800 store screenshots from the fixture into store/
 npm run typecheck
 ```
+
+Store listing copy, permission justifications and the privacy policy are in `store/` and `PRIVACY.md`.
 
 The end-to-end test starts a fake Jev server, scrolls the fixture like a reader, and checks that the
 right flags appear, that promoted and empty posts are never sent, that the panel's cost equals token

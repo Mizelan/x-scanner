@@ -11,7 +11,9 @@
     "typecheck": "tsc --noEmit",
     "test": "node --test \"test/unit/*.test.ts\"",
     "test:e2e": "node build.mjs --e2e && node --test \"test/e2e/*.test.ts\"",
-    "calibrate": "node scripts/calibrate.mjs",
+    "calibrate": "node scripts/calibrate.ts",
+    "package": "npm run build && rm -f x-scanner-$npm_package_version.zip && cd dist && zip -qr ../x-scanner-$npm_package_version.zip . -x '.DS_Store' && cd .. && ls -la x-scanner-$npm_package_version.zip",
+    "screenshots": "node build.mjs --e2e && node scripts/store-screenshots.ts",
     "icons": "python3 scripts/icons.py"
   },
   "license": "MIT",
