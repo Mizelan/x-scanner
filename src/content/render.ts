@@ -172,11 +172,3 @@ function openDetailFor(slot: HTMLElement, vs: Verdict[], r: AnalysisResult): voi
   slot.appendChild(card);
   openDetail = card;
 }
-
-/** Pick pill colors from X's actual theme (the user's choice, not the OS setting). */
-export function applyTheme(): void {
-  const bg = getComputedStyle(document.body).backgroundColor;
-  const m = /rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(bg);
-  const lum = m ? (0.2126 * Number(m[1]) + 0.7152 * Number(m[2]) + 0.0722 * Number(m[3])) / 255 : 0;
-  document.documentElement.classList.toggle("xs-dark", lum < 0.5);
-}

@@ -8,7 +8,7 @@ import { Scheduler } from "./queue.ts";
 import { ResultStore } from "./store.ts";
 import { SessionStats } from "./stats.ts";
 import { Hud } from "./hud.ts";
-import { applyTheme, ensureSlot, fillSlot, getSlot, installDetailHandler, markSlot } from "./render.ts";
+import { ensureSlot, fillSlot, getSlot, installDetailHandler, markSlot } from "./render.ts";
 import { verdicts } from "./labels.ts";
 
 const SETTINGS_LINK = `<a class="xs-link">settings</a>`;
@@ -68,7 +68,6 @@ class App {
   /** X is a single page app: the path and the account can change without a reload. */
   private evaluateRoute(): void {
     if (this.stopped) return;
-    applyTheme();
     const reason = this.pausedReason();
     if (reason) {
       if (this.active) {
