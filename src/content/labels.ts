@@ -16,7 +16,7 @@ export function verdicts(dimensions: Dimension[], answers: Record<string, Answer
     if (!a) continue;
     const value = answerValue(a);
     const show = d.direction === "above" ? value >= d.threshold : value <= d.threshold;
-    out.push({ id: d.id, label: d.label, type: d.type, value, max: maxValue(d), threshold: d.threshold, direction: d.direction, show });
+    out.push({ id: d.id, label: d.label, type: d.type, value, max: maxValue(d), threshold: d.threshold, direction: d.direction, show, color: d.color });
   }
   return out;
 }

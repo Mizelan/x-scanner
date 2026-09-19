@@ -36,7 +36,7 @@ settings.
 | `promo` | Noul | is it pushing a product, course, newsletter, community, or paid offer | ≥ 75% |
 | `secondhand` | Noul | does it only relay someone else's view without adding its own argument | ≥ 75% |
 | `filler` | Score, 3 levels | how much of it is filler relative to the information it carries | ≥ 1.5 of 2 |
-| `jev` | Noul | is the post about Jev or TypeSafe (not a person named Jev) | ≥ 75% |
+| `jevpilled` | Noul | is the post about Jev or TypeSafe (not a person named Jev). Flags in red | ≥ 75% |
 
 A Noul answer is Jev's probability that the answer is yes. A Score answer is a position on ordered
 levels you describe. `fact-dense`, the one positive label, uses these four:
@@ -86,7 +86,7 @@ post text to `api.typesafe.ai`. No server, no analytics.
 - **Scope**: everywhere on X (default), or the home timeline only.
 - **Only when logged in as**: a handle, for people who switch accounts and want it on one.
 - **Dimensions**: add, remove, disable, rename, switch between Noul and Score, edit the question, levels
-  and criteria, set the threshold and whether the flag fires above or below it.
+  and criteria, set the threshold, whether the flag fires above or below it, and the flag color.
 - **Advanced**: model (pinned to `jev-1.13.0` so thresholds keep their meaning), price, base URL,
   concurrency, look-ahead distance, wait before analyzing, cache size.
 - **Lifetime**: totals across sessions, a reset, and a cache clear.

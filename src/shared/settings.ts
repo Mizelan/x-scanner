@@ -4,8 +4,8 @@ import { DEFAULT_BASE_URL, DEFAULT_MODEL, DEFAULT_PRICE_PER_MTOK } from "./jev.t
 
 export const SETTINGS_KEY = "settings";
 export const STATS_KEY = "stats";
-/** v1: dwell 200 ms. v2: dwell 0 and an 800 px look-ahead. v3: scope defaults to all of X. v4: about_jev dimension. */
-export const SETTINGS_VERSION = 4;
+/** v1: dwell 200 ms. v2: dwell 0, 800 px look-ahead. v3: scope all of X. v4: about_jev. v5: jevpilled, flag colors. */
+export const SETTINGS_VERSION = 5;
 
 export const DEFAULT_SETTINGS: Settings = {
   enabled: true,
@@ -31,7 +31,7 @@ export function normalizeSettings(raw: unknown): Settings {
   const dwellRaw = version < 2 && Number(r.dwellMs) === 200 ? 0 : r.dwellMs;
   // v1 and v2 saved the old "home" default; follow the new default.
   const scopeRaw = version < 3 && r.scope === "home" ? "all" : r.scope;
-  const dims = Array.isArray(r.dimensions) && r.dimensions.length ? r.dimensions.map(normalizeDimension).map(migrateLabel) : [...DEFAULT_DIMENSIONS];
+  const dims = Array.isArray(r.dimensions) && r.dimensions.length ? r.dimensions.map(normalizeDimension).map((d) => migrateLabel(d, version)) : [...DEFAULT_DIMENSIONS];
   // Defaults added after this install's version are appended; ones the user deleted later stay deleted.
   for (const [v, ids] of Object.entries(ADDED_IN_VERSION)) {
     if (version >= Number(v)) continue;
@@ -61,11 +61,15 @@ export function normalizeSettings(raw: unknown): Settings {
 const RENAMED_LABELS: Record<string, [string, string]> = {
   info_density: ["dense", "fact-dense"],
   padding: ["padded", "filler"],
+  about_jev: ["jev", "jevpilled"],
 };
 
-function migrateLabel(d: Dimension): Dimension {
+function migrateLabel(d: Dimension, version: number): Dimension {
   const r = RENAMED_LABELS[d.id];
-  return r && d.label === r[0] ? { ...d, label: r[1] } : d;
+  let out = r && d.label === r[0] ? { ...d, label: r[1] } : d;
+  // v5 introduced flag colors; give a pre-v5 about_jev its default red unless one was set.
+  if (version < 5 && out.id === "about_jev" && !out.color) out = { ...out, color: DEFAULT_DIMENSIONS.find((x) => x.id === "about_jev")?.color };
+  return out;
 }
 
 function normalizeDimension(d: Partial<Dimension>): Dimension {
@@ -80,6 +84,7 @@ function normalizeDimension(d: Partial<Dimension>): Dimension {
     threshold: finiteOr(d.threshold, type === "noul" ? 0.75 : 1),
     direction: d.direction === "below" ? "below" : "above",
     enabled: d.enabled !== false,
+    color: typeof d.color === "string" && /^#[0-9a-f]{6}$/i.test(d.color) ? d.color.toLowerCase() : undefined,
   };
 }
 

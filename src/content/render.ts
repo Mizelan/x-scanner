@@ -73,6 +73,9 @@ export function fillSlot(slot: HTMLElement, vs: Verdict[], r: AnalysisResult): v
   const hits = vs.filter((v) => v.show);
   const rest = vs.filter((v) => !v.show);
   slot.dataset.verdict = hits.length ? "flag" : "clean";
+  const tint = hits.find((v) => v.color)?.color;
+  if (tint) slot.style.setProperty("--xs-flag", tint);
+  else slot.style.removeProperty("--xs-flag");
   const parts: HTMLElement[] = [];
   if (hits.length === 0) {
     const ok = document.createElement("span");
@@ -84,6 +87,7 @@ export function fillSlot(slot: HTMLElement, vs: Verdict[], r: AnalysisResult): v
     const flag = document.createElement("span");
     flag.className = "xs-flag";
     flag.dataset.dim = v.id;
+    if (v.color) flag.style.color = v.color;
     flag.textContent = `${hits.indexOf(v) === 0 ? "⚑ " : ""}${v.label} ${formatValue(v)}`;
     parts.push(flag);
   }
@@ -146,6 +150,7 @@ function openDetailFor(slot: HTMLElement, vs: Verdict[], r: AnalysisResult): voi
   for (const v of vs) {
     const row = document.createElement("div");
     row.className = "xs-detail-row" + (v.show ? " xs-hit" : "");
+    if (v.show && v.color) row.style.setProperty("--xs-flag", v.color);
     const k = document.createElement("span");
     k.className = "xs-detail-k";
     k.textContent = v.label;

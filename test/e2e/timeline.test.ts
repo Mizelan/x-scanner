@@ -184,7 +184,16 @@ test("timeline: dwell triggers analysis, pills render, promoted skipped, cache s
   const reply = server.requests.find((r) => r.text.startsWith("Agreed, and the second-order"));
   assert.equal(reply?.is_reply, true);
   assert.deepEqual(server.requests[0]!.questionIds, ["info_density", "engagement_bait", "promotion", "secondhand", "padding", "about_jev"]);
-  assert.ok(pills.some((p) => p.dim === "about_jev" && /jev 9\d%/.test(p.text ?? "")), "jev flag");
+  assert.ok(pills.some((p) => p.dim === "about_jev" && /jevpilled 9\d%/.test(p.text ?? "")), "jevpilled flag");
+  const red = await page.evaluate(() => {
+    const art = Array.from(document.querySelectorAll("article")).find((a) => a.textContent?.includes("TypeSafe just shipped"));
+    const slot = art?.querySelector(".xs-slot") as HTMLElement | null;
+    const flag = slot?.querySelector('.xs-flag[data-dim="about_jev"]') as HTMLElement | null;
+    return { flag: flag && getComputedStyle(flag).color, border: slot && getComputedStyle(slot).borderTopColor };
+  });
+  assert.equal(red.flag, "rgb(244, 33, 46)", "jevpilled flag is red");
+  // color-mix() output: rgb(244, 33, 46) at 70%, which Chrome reports as color(srgb 0.9569 0.1294 0.1804 / 0.7).
+  assert.match(red.border ?? "", /244, 33, 46|srgb 0\.95\d* 0\.12\d* 0\.18\d*/, "chip border takes the red");
   assert.equal(server.requests[0]!.model, "jev-1.13.0");
 
   // Every post was billed at most once even though the list recycled and remounted nodes.

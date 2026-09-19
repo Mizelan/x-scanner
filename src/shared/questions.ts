@@ -79,7 +79,7 @@ export const DEFAULT_DIMENSIONS: Dimension[] = [
   },
   {
     id: "about_jev",
-    label: "jev",
+    label: "jevpilled",
     type: "noul",
     instructions: "Is `text` about Jev, the System One model from TypeSafe AI, or about TypeSafe AI itself?",
     criteria: {
@@ -89,6 +89,7 @@ export const DEFAULT_DIMENSIONS: Dimension[] = [
     threshold: 0.75,
     direction: "above",
     enabled: true,
+    color: "#f4212e",
   },
 ];
 

@@ -17,6 +17,8 @@ export interface Dimension {
   /** Show the pill when the value is above (>=) or below (<=) the threshold. */
   direction: "above" | "below";
   enabled: boolean;
+  /** Flag color as #rrggbb. Unset means the default orange. */
+  color?: string;
 }
 
 export interface Settings {
@@ -107,6 +109,7 @@ export interface Verdict {
   threshold: number;
   direction: "above" | "below";
   show: boolean;
+  color?: string;
 }
 
 /** Messages between the content script and the service worker. */

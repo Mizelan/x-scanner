@@ -11,7 +11,7 @@ test("fills defaults for a missing or partial object", () => {
   assert.equal(s.concurrency, 32);
   assert.equal(s.dwellMs, 0);
   assert.equal(s.lookaheadPx, 800);
-  assert.equal(s.version, 4);
+  assert.equal(s.version, 5);
   assert.equal(s.dimensions.length, 6);
 });
 
@@ -56,9 +56,20 @@ test("appends dimensions added after the stored version, but not ones the user r
     old.dimensions.map((d) => d.id),
     ["x", "about_jev"],
   );
-  const current = normalizeSettings({ dimensions: [five], version: 4 });
+  const current = normalizeSettings({ dimensions: [five], version: 5 });
   assert.deepEqual(
     current.dimensions.map((d) => d.id),
     ["x"],
   );
+});
+
+test("renames jev to jevpilled and gives a pre-v5 about_jev its red, keeping a chosen color", () => {
+  const base = { id: "about_jev", type: "noul", instructions: "?", threshold: 0.75 };
+  const migrated = normalizeSettings({ version: 4, dimensions: [{ ...base, label: "jev" }] });
+  assert.equal(migrated.dimensions[0]!.label, "jevpilled");
+  assert.equal(migrated.dimensions[0]!.color, "#f4212e");
+  const chosen = normalizeSettings({ version: 4, dimensions: [{ ...base, label: "jev", color: "#00AA00" }] });
+  assert.equal(chosen.dimensions[0]!.color, "#00aa00");
+  const bad = normalizeSettings({ version: 5, dimensions: [{ ...base, label: "x", color: "red" }] });
+  assert.equal(bad.dimensions[0]!.color, undefined);
 });

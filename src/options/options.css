@@ -215,3 +215,14 @@ button:hover {
 .err {
   color: #c0392b;
 }
+.inline-color {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.inline-color input[type="color"] {
+  width: 44px;
+  height: 28px;
+  padding: 2px;
+  margin: 0;
+}

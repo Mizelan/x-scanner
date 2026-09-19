@@ -47,6 +47,7 @@ function dimCard(d: Dimension): HTMLElement {
   $<HTMLTextAreaElement>(".d-false", card).value = d.criteria?.false ?? "";
   $<HTMLSelectElement>(".d-direction", card).value = d.direction;
   $<HTMLInputElement>(".d-threshold", card).value = String(d.threshold);
+  $<HTMLInputElement>(".d-color", card).value = d.color ?? DEFAULT_FLAG_COLOR;
   const refreshHint = () => {
     const type = $<HTMLSelectElement>(".d-type", card).value;
     card.dataset.type = type;
@@ -69,6 +70,14 @@ function dimCard(d: Dimension): HTMLElement {
   $(".d-remove", card).addEventListener("click", () => card.remove());
   refreshHint();
   return card;
+}
+
+/** Default orange lives in CSS; only a changed color is stored. */
+const DEFAULT_FLAG_COLOR = "#ff7a00";
+
+function colorOf(card: HTMLElement): string | undefined {
+  const v = $<HTMLInputElement>(".d-color", card).value.toLowerCase();
+  return v === DEFAULT_FLAG_COLOR ? undefined : v;
 }
 
 function levelsOf(card: HTMLElement): string[] {
@@ -97,6 +106,7 @@ function readDims(): { dims: Dimension[]; problems: number } {
       threshold: Number($<HTMLInputElement>(".d-threshold", card).value),
       direction: $<HTMLSelectElement>(".d-direction", card).value === "below" ? "below" : "above",
       enabled: $<HTMLInputElement>(".d-enabled", card).checked,
+      color: colorOf(card),
     };
     const errs = validateDimension(d);
     if (seen.has(d.id)) errs.push("duplicate id");

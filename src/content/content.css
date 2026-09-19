@@ -25,9 +25,12 @@
   border-color: rgba(0, 186, 124, 0.6);
   background: rgba(0, 186, 124, 0.09);
 }
+.xs-slot {
+  --xs-flag: rgb(255, 122, 0);
+}
 .xs-slot[data-verdict="flag"] {
-  border-color: rgba(255, 122, 0, 0.7);
-  background: rgba(255, 122, 0, 0.1);
+  border-color: color-mix(in srgb, var(--xs-flag) 70%, transparent);
+  background: color-mix(in srgb, var(--xs-flag) 10%, transparent);
 }
 .xs-slot[data-verdict="note"] {
   border-style: dashed;
@@ -44,7 +47,7 @@
   font-weight: 700;
 }
 .xs-flag {
-  color: rgb(255, 122, 0);
+  color: var(--xs-flag);
   font-weight: 700;
 }
 .xs-dim {
@@ -98,11 +101,14 @@
   height: 100%;
   background: #e7e9ea;
 }
+.xs-detail-row {
+  --xs-flag: rgb(255, 122, 0);
+}
 .xs-detail-row.xs-hit .xs-detail-bar i {
-  background: rgb(255, 122, 0);
+  background: var(--xs-flag);
 }
 .xs-detail-row.xs-hit .xs-detail-k {
-  color: rgb(255, 122, 0);
+  color: var(--xs-flag);
 }
 .xs-detail-v {
   text-align: right;
