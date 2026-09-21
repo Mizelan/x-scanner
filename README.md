@@ -35,8 +35,8 @@ post text to `api.typesafe.ai`. No server, no analytics.
 **Under each post**, a chip styled like X's own metadata line, in Korean:
 
 - Nothing at all when no threshold was crossed — a clean post stays invisible.
-- `⚑ 유도 97%` in orange when one was, followed by every other value in gray. The flagged post's own
-  text is blurred until you hover it.
+- `⚑ 유도 97%` in orange when one was, followed by every other value in gray. The flagged post's whole
+  card is blurred until you hover it.
 - `텍스트 없음` or `광고 · 분석 안 함` in dashed gray for posts that are skipped.
 - Click the chip for a card with a bar per dimension, the token count, cost and latency of that call.
 
@@ -55,7 +55,7 @@ All six judge the text's behavior, never the author. Every one is editable in se
 | `홍보` | Noul | is it pushing a product, course, newsletter, community, or paid offer | ≥ 60% |
 | `재탕` | Noul | does it only relay someone else's view without adding its own argument | ≥ 75% |
 | `잡담` | Score, 3 levels | how much of it is filler relative to the information it carries | ≥ 1.5 of 2 |
-| `쇼츠` | Noul | does it read like a hook-first, low-substance short tip built for a short-form feed | ≥ 75% |
+| `쇼츠` | Noul | does it read like a hook-first, low-substance short tip built for a short-form feed (a short video raises the odds) | ≥ 75% |
 
 A Noul answer is Jev's probability that the answer is yes. A Score answer is a position on ordered
 levels you describe. `정보`, the one positive label, uses these four:
@@ -70,7 +70,7 @@ question's wording, its levels, or the model, and the result cache is dropped.
 
 ## Cost and speed
 
-Measured on 2026-09-18 with `jev-1.13.0` over the 18 sample posts in `test/fixture/samples.json`.
+Measured on 2026-09-18 with `jev-1.13.0` over the sample posts in `test/fixture/samples.json`.
 `npm run calibrate` reproduces it for under a tenth of a cent.
 
 | | |
@@ -102,8 +102,9 @@ text goes in as written, in whatever language. Renaming a label is display-only 
   IntersectionObserver with an 800 px bottom margin fires as soon as a post is near the viewport.
   A wait before sending is available in settings for people who would rather pay only for posts
   they actually stopped on.
-- The content script extracts the post id, text, quoted text and reply flag, and asks the service
-  worker to analyze. Only the service worker holds the API key.
+- The content script extracts the post id, text, quoted text, reply flag and attached media (kind, and
+  a video's length when the player has loaded it), and asks the service worker to analyze. Only the
+  service worker holds the API key.
 - One `POST /v1/systemone` per post carries all six questions. Retries follow the official SDKs:
   429 and 529 back off, everything else fails fast.
 - At most 6 requests are in flight; the rest queue in order. A queued post that scrolls out of the
@@ -123,7 +124,7 @@ src/
   content/
     selectors.ts        every X DOM selector, in one place
     observe.ts          MutationObserver + IntersectionObserver, look-ahead and optional wait
-    extract.ts          id, text, quote, reply and promoted detection
+    extract.ts          id, text, quote, reply, media and promoted detection
     queue.ts            concurrency-capped FIFO with cancel
     cache.ts, store.ts  LRU and its persistence
     labels.ts           threshold policy
@@ -174,7 +175,7 @@ set `CHROME_PATH`). Branded Google Chrome no longer accepts `--load-extension`.
 一個 Chrome 外掛。你在 X 上滑到的每則推文，一接近畫面（預設提前 800 px）就送去 Jev 做六個維度的判斷：
 資訊密度（정보）、互動誘導（유도）、推銷（홍보）、轉述（재탕）、灌水（잡담）、短影音式小撇步（쇼츠）。
 六題併在同一個 request，約 150 毫秒回來。沒有超過門檻的推文完全不顯示；超過門檻的在推文下方標出，
-且推文本會被模糊，滑鼠移入才清楚，後面接每個維度的數值；點一下看完整細節。右下角面板即時顯示本次分析
+且整張卡片會被模糊，滑鼠移入才清楚，後面接每個維度的數值；點一下看完整細節。右下角面板即時顯示本次分析
 則數、累計花費（小數點後四位，用 Jev 回傳的 token 數精確計算）、上一次呼叫延遲、每秒判斷數。
 
 同時進行的請求上限 6，超過排隊；滑走的推文自動離隊不計費。結果以推文 ID 快取，回捲、重新整理都不重新計費。

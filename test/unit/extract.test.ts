@@ -15,6 +15,7 @@ const dom = new JSDOM(`<!doctype html><html><body>
   <div role="link" tabindex="0">
     <div data-testid="User-Name"><a href="/carol/status/3003"><time>3h</time></a></div>
     <div data-testid="tweetText"><span>Quoted wisdom here</span></div>
+    <div data-testid="videoPlayer"><video></video></div>
   </div>
   <div role="group"></div>
 </article>
@@ -27,6 +28,18 @@ const dom = new JSDOM(`<!doctype html><html><body>
   <div><a href="/erin/status/5005"><time>4h</time></a></div>
   <div><span>Replying to </span><a href="/alice">@alice</a></div>
   <div data-testid="tweetText"><span>Agreed.</span></div>
+  <div role="group"></div>
+</article>
+<article data-testid="tweet" id="video">
+  <div data-testid="User-Name"><a href="/frank/status/6006"><time>5h</time></a></div>
+  <div data-testid="tweetText"><span>One trick nobody tells you</span></div>
+  <div data-testid="videoPlayer"><video></video></div>
+  <div role="group"></div>
+</article>
+<article data-testid="tweet" id="photo">
+  <div data-testid="User-Name"><a href="/gina/status/7007"><time>6h</time></a></div>
+  <div data-testid="tweetText"><span>Look at this</span></div>
+  <div data-testid="tweetPhoto"><img src="a.png" alt=""></div>
   <div role="group"></div>
 </article>
 <article data-testid="tweet" id="noid">
@@ -55,6 +68,14 @@ test("separates the quoted post from the main text and picks the outer id", () =
   assert.equal(t.id, "2002");
   assert.equal(t.state.text, "This.");
   assert.equal(t.state.quoted_text, "Quoted wisdom here");
+  assert.equal(t.state.media, undefined, "a quoted post's video is not the outer post's media");
+});
+
+test("reads attached media: video (duration when known) and photo", () => {
+  const video = extract.extractTweet(dom.window.document.getElementById("video")!)!;
+  assert.deepEqual(video.state.media, { kind: "video" });
+  const photo = extract.extractTweet(dom.window.document.getElementById("photo")!)!;
+  assert.deepEqual(photo.state.media, { kind: "image" });
 });
 
 test("flags promoted posts", () => {

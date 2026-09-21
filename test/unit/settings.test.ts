@@ -11,7 +11,7 @@ test("fills defaults for a missing or partial object", () => {
   assert.equal(s.concurrency, 32);
   assert.equal(s.dwellMs, 0);
   assert.equal(s.lookaheadPx, 800);
-  assert.equal(s.version, 8);
+  assert.equal(s.version, 9);
   assert.equal(s.dimensions.length, 6);
 });
 
@@ -88,4 +88,19 @@ test("lowers promotion's default threshold for pre-v7 installs, keeps a delibera
   assert.equal(old.dimensions[0]!.threshold, 0.6);
   const chosen = normalizeSettings({ version: 6, dimensions: [{ ...base, threshold: 0.9 }] });
   assert.equal(chosen.dimensions[0]!.threshold, 0.9);
+});
+
+test("refreshes a stored pre-v9 shorts_tip prompt but keeps a user's own wording", () => {
+  const v8 =
+    'Does `text` present itself as a shorts-style short tip — a hook-first, compressed piece of advice or "facts" meant to be skimmed, where the value is the feeling of knowing something rather than a checkable claim or a specific, actionable step?';
+  const shipped = normalizeSettings({
+    version: 8,
+    dimensions: [{ id: "shorts_tip", label: "쇼츠", type: "noul", instructions: v8, threshold: 0.75 }],
+  });
+  assert.match(shipped.dimensions[0]!.instructions, /shorter the video/);
+  const custom = normalizeSettings({
+    version: 8,
+    dimensions: [{ id: "shorts_tip", label: "쇼츠", type: "noul", instructions: "my own wording", threshold: 0.75 }],
+  });
+  assert.equal(custom.dimensions[0]!.instructions, "my own wording");
 });

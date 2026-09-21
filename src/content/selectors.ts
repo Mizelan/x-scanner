@@ -18,6 +18,10 @@ export const SEL = {
   actionBar: 'div[role="group"]',
   /** Old style promoted wrapper, still checked. */
   placementTracking: '[data-testid="placementTracking"]',
+  /** Native video player wrapper X mounts for a video post. */
+  videoPlayer: '[data-testid="videoPlayer"]',
+  /** Photo attachment wrapper. */
+  tweetPhoto: '[data-testid="tweetPhoto"]',
   /** Left nav profile link; its href is /<handle> of the logged in account. */
   profileLink: 'a[data-testid="AppTabBar_Profile_Link"]',
 } as const;

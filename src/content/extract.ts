@@ -19,7 +19,21 @@ export function extractTweet(article: Element): ExtractedTweet | null {
     const q = readText(quoted);
     if (q) state.quoted_text = q;
   }
+  const media = extractMedia(article);
+  if (media) state.media = media;
   return { id, state, promoted: isPromoted(article) };
+}
+
+/** Media on the outer post (never a quote's), with a video's duration when the player has loaded it. */
+export function extractMedia(article: Element): TweetState["media"] | undefined {
+  const video = Array.from(article.querySelectorAll<HTMLVideoElement>("video")).find((v) => !insideQuote(v, article));
+  const player = Array.from(article.querySelectorAll(SEL.videoPlayer)).find((v) => !insideQuote(v, article));
+  if (video || player) {
+    const seconds = video && Number.isFinite(video.duration) ? Math.round(video.duration) : undefined;
+    return seconds === undefined ? { kind: "video" } : { kind: "video", seconds };
+  }
+  const photo = Array.from(article.querySelectorAll(SEL.tweetPhoto)).find((p) => !insideQuote(p, article));
+  return photo ? { kind: "image" } : undefined;
 }
 
 export function tweetId(article: Element): string | null {

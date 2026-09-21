@@ -82,10 +82,10 @@ export const DEFAULT_DIMENSIONS: Dimension[] = [
     label: "쇼츠",
     type: "noul",
     instructions:
-      "Does `text` present itself as a shorts-style short tip — a hook-first, compressed piece of advice or \"facts\" meant to be skimmed, where the value is the feeling of knowing something rather than a checkable claim or a specific, actionable step?",
+      "Does `state` read as a shorts-style short tip — a hook-first, low-substance piece of advice or \"facts\" built to be skimmed, where the value is the feeling of knowing something rather than a checkable claim or a specific, actionable step? Weigh any attached media in `state.media`: the shorter the video (a smaller `media.seconds`, or a video whose length is not yet shown), the more likely this is; plain text, an image, a long video, or no media make it less likely.",
     criteria: {
-      true: "The whole post is a punchy tip, maxim, or rapid-fire list of \"facts\" built for a short-form feed: \"most people don't know\", \"nobody talks about this\", \"save this before it's gone\", \"do this every morning\". It is short and confident yet carries no named source, no number with context, and no concrete, verifiable step",
-      false: "The post delivers checkable substance (a named source, a number with context, a date, a link, or a specific how-to step), tells a personal story, argues a position, asks a real question, or is a reply — not a skimmable tip",
+      true: "A punchy tip, maxim, or rapid-fire list of \"facts\" built for a short-form feed (\"most people don't know\", \"nobody talks about this\", \"save this before it's gone\"), and/or a short video clip of roughly a minute or less with a hook-first caption. It is confident yet carries no named source, no number with context, and no concrete, verifiable step",
+      false: "Delivers checkable substance (a named source, a number with context, a date, a link, or a specific how-to step), tells a personal story, argues a position, asks a real question, or is a reply; or the attached video is long (clearly more than a couple of minutes) or there is no short-video hook at all",
     },
     threshold: 0.75,
     direction: "above",

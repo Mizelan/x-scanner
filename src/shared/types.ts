@@ -48,6 +48,8 @@ export interface TweetState {
   text: string;
   quoted_text?: string;
   is_reply: boolean;
+  /** Attached media, when we can tell. `seconds` is set only for a video whose duration is known. */
+  media?: { kind: "video" | "image"; seconds?: number };
 }
 
 export interface NoulAnswer {

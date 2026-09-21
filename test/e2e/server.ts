@@ -10,6 +10,7 @@ export interface SeenRequest {
   is_reply: boolean;
   questionIds: string[];
   model: string;
+  media?: unknown;
 }
 
 export function fakeAnswers(state: { text: string; quoted_text?: string }, questionIds: string[]) {
@@ -58,7 +59,7 @@ export async function startServer(fixtureDir: string): Promise<{ port: number; r
       for await (const chunk of req) body += chunk;
       const parsed = JSON.parse(body) as { model: string; state: { text: string; quoted_text?: string; is_reply: boolean }; questions: Record<string, unknown> };
       const ids = Object.keys(parsed.questions);
-      requests.push({ text: parsed.state.text, quoted_text: parsed.state.quoted_text, is_reply: parsed.state.is_reply, questionIds: ids, model: parsed.model });
+      requests.push({ text: parsed.state.text, quoted_text: parsed.state.quoted_text, is_reply: parsed.state.is_reply, questionIds: ids, model: parsed.model, media: (parsed.state as { media?: unknown }).media });
       const input_tokens = tokensFor(parsed.state);
       totalTokens += input_tokens;
       await new Promise((r) => setTimeout(r, 60 + Math.random() * 60));

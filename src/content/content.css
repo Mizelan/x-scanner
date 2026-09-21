@@ -57,7 +57,7 @@
   font-style: italic;
 }
 
-/* A flagged post's own text is blurred; hovering the text reveals it. */
+/* A flagged post's whole card is blurred; hovering the card reveals it. */
 .xs-blur {
   filter: blur(5px);
   transition: filter 160ms ease;

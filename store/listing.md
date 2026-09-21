@@ -16,7 +16,7 @@ One model, and shows you exactly what it cost.
 
 Each post is sent to Jev with six typed questions in one request as it comes near your viewport. The
 answer comes back in about 150 ms as numbers, not prose. A clean post shows nothing at all; when
-something crosses a threshold the post gets a flag chip and its own text is blurred until you hover
+something crosses a threshold the post gets a flag chip and its whole card is blurred until you hover
 it. Click the chip for every value. A panel in the corner counts posts analyzed, dollars spent to
 four decimals, the last call's latency and judgments per second.
 
@@ -26,7 +26,7 @@ The six dimensions (Korean chip labels), all editable:
 • 홍보 (promo): is it pushing a product, course, newsletter, community or paid offer
 • 재탕 (secondhand): does it only relay someone else's view without adding its own argument
 • 잡담 (filler): how much of it is filler relative to the information it carries
-• 쇼츠 (shorts-tip): is it a hook-first, low-substance short tip built for a short-form feed
+• 쇼츠 (shorts-tip): is it a hook-first, low-substance short tip built for a short-form feed; a short video raises the odds
 
 The chips, corner panel and settings page are in Korean; the questions sent to Jev stay in English.
 

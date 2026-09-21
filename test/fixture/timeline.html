@@ -56,7 +56,7 @@
     const a = document.createElement('article');
     a.setAttribute('data-testid', 'tweet'); a.setAttribute('role', 'article'); a.tabIndex = 0;
     const quote = it.quoted ? `<div role="link" tabindex="0"><div data-testid="User-Name"><a href="/someone"><span class="name">Someone</span></a><a href="/someone/status/${it.id}9"><time datetime="2026-09-17T10:00:00Z">Sep 17</time></a></div><div data-testid="tweetText"><span>${esc(it.quoted)}</span></div></div>` : '';
-    const media = it.media ? '<div class="media" aria-label="Image"></div>' : '';
+    const media = it.video ? '<div data-testid="videoPlayer"><video></video></div>' : it.media ? '<div class="media" aria-label="Image"></div>' : '';
     const ad = it.promoted ? '<span class="ad">Ad</span>' : '';
     const replying = it.reply_to ? `<div class="replying"><span>Replying to </span><a href="/${it.reply_to}">@${it.reply_to}</a></div>` : '';
     a.innerHTML = `<div class="avatar"></div><div class="col">

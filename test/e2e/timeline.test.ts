@@ -124,16 +124,13 @@ test("timeline: dwell triggers analysis, pills render, promoted skipped, cache s
   });
   assert.equal(flagged, "flag");
   const blur = await page.evaluate(() => {
-    const textOf = (needle: string) =>
-      Array.from(document.querySelectorAll("article"))
-        .find((a) => a.textContent?.includes(needle))
-        ?.querySelector('[data-testid="tweetText"]');
+    const cardOf = (needle: string) => Array.from(document.querySelectorAll("article")).find((a) => a.textContent?.includes(needle));
     return {
-      flagged: textOf("Bookmark this")?.classList.contains("xs-blur") ?? false,
-      clean: textOf("Coffee tastes better")?.classList.contains("xs-blur") ?? false,
+      flagged: cardOf("Bookmark this")?.classList.contains("xs-blur") ?? false,
+      clean: cardOf("Coffee tastes better")?.classList.contains("xs-blur") ?? false,
     };
   });
-  assert.deepEqual(blur, { flagged: true, clean: false }, "a flagged post's text is blurred, a clean post's is not");
+  assert.deepEqual(blur, { flagged: true, clean: false }, "a flagged post's whole card is blurred, a clean post's is not");
   const skipped = await page.evaluate(() => {
     const art = Array.from(document.querySelectorAll("article")).find((a) => a.textContent?.includes("Meet the new Pixel"));
     return art?.querySelector(".xs-note")?.textContent;
@@ -165,6 +162,10 @@ test("timeline: dwell triggers analysis, pills render, promoted skipped, cache s
   assert.equal(reply?.is_reply, true);
   assert.deepEqual(server.requests[0]!.questionIds, ["info_density", "engagement_bait", "promotion", "secondhand", "padding", "shorts_tip"]);
   assert.ok(!pills.some((p) => p.dim === "about_jev"), "retired about_jev never renders");
+  // A video post carries its media kind to Jev; a plain post carries none.
+  const videoReq = server.requests.find((r) => r.text.includes("One trick most people"));
+  assert.equal((videoReq?.media as { kind?: string } | undefined)?.kind, "video", "video media reaches Jev");
+  assert.equal(server.requests.find((r) => r.text.includes("Coffee tastes better"))?.media, undefined, "a plain post sends no media");
   assert.equal(server.requests[0]!.model, "jev-1.13.0");
 
   // Every post was billed at most once even though the list recycled and remounted nodes.

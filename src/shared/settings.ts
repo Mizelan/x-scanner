@@ -4,8 +4,8 @@ import { DEFAULT_BASE_URL, DEFAULT_MODEL, DEFAULT_PRICE_PER_MTOK } from "./jev.t
 
 export const SETTINGS_KEY = "settings";
 export const STATS_KEY = "stats";
-/** v1: dwell 200 ms. v2: dwell 0, 800 px look-ahead. v3: scope all of X. v4: about_jev. v5: jevpilled, flag colors. v6: shorts_tip. v7: Korean labels, promotion 0.6. v8: about_jev removed. */
-export const SETTINGS_VERSION = 8;
+/** v1: dwell 200 ms. v2: dwell 0, 800 px look-ahead. v3: scope all of X. v4: about_jev. v5: jevpilled, flag colors. v6: shorts_tip. v7: Korean labels, promotion 0.6. v8: about_jev removed. v9: shorts_tip weighs video length. */
+export const SETTINGS_VERSION = 9;
 
 export const DEFAULT_SETTINGS: Settings = {
   enabled: true,
@@ -34,6 +34,8 @@ export function normalizeSettings(raw: unknown): Settings {
   let dims = Array.isArray(r.dimensions) && r.dimensions.length ? r.dimensions.map(normalizeDimension).map(migrateLabel) : [...DEFAULT_DIMENSIONS];
   // about_jev was retired in v8; drop it from stored settings.
   if (version < 8) dims = dims.filter((d) => d.id !== "about_jev");
+  // v9 sharpened the shorts_tip question to weigh video length; refresh an untouched stored copy.
+  if (version < 9) dims = dims.map(refreshShortsTip);
   // v7 lowered promotion's default threshold; follow it unless the user set their own.
   if (version < 7) dims = dims.map((d) => (d.id === "promotion" && d.threshold === 0.75 ? { ...d, threshold: 0.6 } : d));
   // Defaults added after this install's version are appended; ones the user deleted later stay deleted.
@@ -91,6 +93,16 @@ function migrateLabel(d: Dimension): Dimension {
   const en = ENGLISH_DEFAULT_LABELS[renamed.id];
   const ko = KOREAN_DEFAULT_LABELS[renamed.id];
   return en && ko && renamed.label === en ? { ...renamed, label: ko } : renamed;
+}
+
+/** The v6-v8 shorts_tip prompt; a stored copy still carrying it moves to the current wording at v9. */
+const SHORTS_TIP_V8_INSTRUCTIONS =
+  "Does `text` present itself as a shorts-style short tip — a hook-first, compressed piece of advice or \"facts\" meant to be skimmed, where the value is the feeling of knowing something rather than a checkable claim or a specific, actionable step?";
+
+function refreshShortsTip(d: Dimension): Dimension {
+  if (d.id !== "shorts_tip" || d.instructions !== SHORTS_TIP_V8_INSTRUCTIONS) return d;
+  const def = DEFAULT_DIMENSIONS.find((x) => x.id === "shorts_tip");
+  return def ? { ...d, instructions: def.instructions, criteria: def.criteria } : d;
 }
 
 function normalizeDimension(d: Partial<Dimension>): Dimension {
