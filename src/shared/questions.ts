@@ -2,14 +2,14 @@ import type { Dimension, JevQuestion } from "./types.ts";
 import { fnv1a } from "./hash.ts";
 
 /**
- * The five default dimensions. All of them judge the text's behavior, never the author.
- * Prompts are English on purpose: Jev's docs say English is its primary language and
- * CJK is handled but not equally well. The tweet itself goes in as written.
+ * The default dimensions. All of them judge the text's behavior, never the author.
+ * Labels are Korean (UI); prompts are English on purpose: Jev's docs say English is its
+ * primary language and CJK is handled but not equally well. The tweet itself goes in as written.
  */
 export const DEFAULT_DIMENSIONS: Dimension[] = [
   {
     id: "info_density",
-    label: "fact-dense",
+    label: "정보",
     type: "score",
     instructions: "How much specific, verifiable content does `text` contain?",
     levels: [
@@ -24,7 +24,7 @@ export const DEFAULT_DIMENSIONS: Dimension[] = [
   },
   {
     id: "engagement_bait",
-    label: "engagement bait",
+    label: "유도",
     type: "noul",
     instructions:
       "Does `text` end by asking or prompting readers to reply, repost, like, follow, bookmark, or otherwise interact?",
@@ -38,20 +38,20 @@ export const DEFAULT_DIMENSIONS: Dimension[] = [
   },
   {
     id: "promotion",
-    label: "promo",
+    label: "홍보",
     type: "noul",
     instructions: "Is `text` promoting a product, course, newsletter, community, service, or paid offer?",
     criteria: {
       true: "Names or links to something the reader is meant to buy, sign up for, join, or subscribe to, including the author's own product",
       false: "No product, course, service, or offer is being pushed",
     },
-    threshold: 0.75,
+    threshold: 0.6,
     direction: "above",
     enabled: true,
   },
   {
     id: "secondhand",
-    label: "secondhand",
+    label: "재탕",
     type: "noul",
     instructions:
       "Does `text` only relay or summarize someone else's view, without adding the author's own argument, evidence, or new information?",
@@ -65,7 +65,7 @@ export const DEFAULT_DIMENSIONS: Dimension[] = [
   },
   {
     id: "padding",
-    label: "filler",
+    label: "잡담",
     type: "score",
     instructions: "How much of `text` is filler relative to the information it carries?",
     levels: [
@@ -78,23 +78,24 @@ export const DEFAULT_DIMENSIONS: Dimension[] = [
     enabled: true,
   },
   {
-    id: "about_jev",
-    label: "jevpilled",
+    id: "shorts_tip",
+    label: "쇼츠",
     type: "noul",
-    instructions: "Is `text` about Jev, the System One model from TypeSafe AI, or about TypeSafe AI itself?",
+    instructions:
+      "Does `text` present itself as a shorts-style short tip — a hook-first, compressed piece of advice or \"facts\" meant to be skimmed, where the value is the feeling of knowing something rather than a checkable claim or a specific, actionable step?",
     criteria: {
-      true: "Mentions or discusses Jev the AI model, TypeSafe, typesafe.ai, or System One models: using it, benchmarking it, its pricing, its launch, or reactions to it",
-      false: "Does not mention Jev the model or TypeSafe. A person or anything else named Jev, other AI models, or unrelated topics",
+      true: "The whole post is a punchy tip, maxim, or rapid-fire list of \"facts\" built for a short-form feed: \"most people don't know\", \"nobody talks about this\", \"save this before it's gone\", \"do this every morning\". It is short and confident yet carries no named source, no number with context, and no concrete, verifiable step",
+      false: "The post delivers checkable substance (a named source, a number with context, a date, a link, or a specific how-to step), tells a personal story, argues a position, asks a real question, or is a reply — not a skimmable tip",
     },
     threshold: 0.75,
     direction: "above",
     enabled: true,
-    color: "#f4212e",
+    color: "#7856ff",
   },
 ];
 
 /** Dimensions added after the first release, appended to stored settings on upgrade. Keyed by the settings version that introduced them. */
-export const ADDED_IN_VERSION: Record<number, string[]> = { 4: ["about_jev"] };
+export const ADDED_IN_VERSION: Record<number, string[]> = { 6: ["shorts_tip"] };
 
 /** Turn enabled dimensions into the `questions` map Jev expects. */
 export function buildQuestions(dimensions: Dimension[]): Record<string, JevQuestion> {
@@ -128,15 +129,15 @@ export function maxValue(d: Dimension): number {
 /** Basic validation for the options page. Returns a list of problems, empty when fine. */
 export function validateDimension(d: Dimension): string[] {
   const problems: string[] = [];
-  if (!/^[a-z][a-z0-9_]*$/.test(d.id)) problems.push("id must be snake_case (a-z, 0-9, _)");
-  if (!d.label.trim()) problems.push("label is empty");
-  if (!d.instructions.trim()) problems.push("instructions are empty");
+  if (!/^[a-z][a-z0-9_]*$/.test(d.id)) problems.push("id는 snake_case(a-z, 0-9, _)여야 합니다");
+  if (!d.label.trim()) problems.push("칩 텍스트가 비어 있습니다");
+  if (!d.instructions.trim()) problems.push("질문이 비어 있습니다");
   if (d.type === "score") {
     const n = d.levels?.filter((l) => l.trim()).length ?? 0;
-    if (n < 2 || n > 10) problems.push("score needs 2 to 10 levels");
-    if (d.threshold < 0 || d.threshold > Math.max(0, n - 1)) problems.push(`threshold must be within 0 and ${n - 1}`);
+    if (n < 2 || n > 10) problems.push("Score는 레벨이 2~10개 필요합니다");
+    if (d.threshold < 0 || d.threshold > Math.max(0, n - 1)) problems.push(`임계치는 0~${n - 1}이어야 합니다`);
   } else {
-    if (d.threshold < 0 || d.threshold > 1) problems.push("threshold must be within 0 and 1");
+    if (d.threshold < 0 || d.threshold > 1) problems.push("임계치는 0~1이어야 합니다");
   }
   return problems;
 }

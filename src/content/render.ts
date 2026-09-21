@@ -29,7 +29,11 @@ export function ensureSlot(article: Element, tweetId: string | null): HTMLElemen
       else article.appendChild(slot);
     }
   }
-  if (tweetId) slot.dataset.tweetId = tweetId;
+  if (tweetId) {
+    // A recycled article mounts a different post; drop any blur left from the previous one.
+    if (slot.dataset.tweetId !== tweetId) setTextBlur(slot, false);
+    slot.dataset.tweetId = tweetId;
+  }
   return slot;
 }
 
@@ -50,20 +54,21 @@ export function getSlot(article: Element): HTMLElement | null {
 export function markSlot(slot: HTMLElement, state: SlotState, title?: string): void {
   slot.dataset.state = state;
   if (title !== undefined) slot.title = title;
+  setTextBlur(slot, false);
   if (state === "error" || state === "skipped") {
     slot.dataset.verdict = "note";
     slot.textContent = "";
     const note = document.createElement("span");
     note.className = "xs-note";
-    note.textContent = state === "error" ? "analysis failed" : (title ?? "skipped");
+    note.textContent = state === "error" ? "분석 실패" : (title ?? "건너뜀");
     slot.appendChild(note);
     slot.classList.add("xs-in");
   }
 }
 
 /**
- * Fill the line: a verdict first (orange flags, or a green check), then every dimension's value in
- * X's secondary gray, flagged ones repeated in orange so the eye lands on them. Then fade in.
+ * Fill the line: when something crossed a threshold, one flag chip per hit followed by every
+ * value in gray. A clean post renders nothing at all (the slot is hidden by CSS). Then fade in.
  */
 export function fillSlot(slot: HTMLElement, vs: Verdict[], r: AnalysisResult): void {
   slot.textContent = "";
@@ -73,30 +78,27 @@ export function fillSlot(slot: HTMLElement, vs: Verdict[], r: AnalysisResult): v
   const hits = vs.filter((v) => v.show);
   const rest = vs.filter((v) => !v.show);
   slot.dataset.verdict = hits.length ? "flag" : "clean";
+  setTextBlur(slot, hits.length > 0);
   const tint = hits.find((v) => v.color)?.color;
   if (tint) slot.style.setProperty("--xs-flag", tint);
   else slot.style.removeProperty("--xs-flag");
   const parts: HTMLElement[] = [];
-  if (hits.length === 0) {
-    const ok = document.createElement("span");
-    ok.className = "xs-ok";
-    ok.textContent = "✓ clean";
-    parts.push(ok);
-  }
-  for (const v of hits) {
-    const flag = document.createElement("span");
-    flag.className = "xs-flag";
-    flag.dataset.dim = v.id;
-    if (v.color) flag.style.color = v.color;
-    flag.textContent = `${hits.indexOf(v) === 0 ? "⚑ " : ""}${v.label} ${formatValue(v)}`;
-    parts.push(flag);
-  }
-  for (const v of rest) {
-    const dim = document.createElement("span");
-    dim.className = "xs-dim";
-    dim.dataset.dim = v.id;
-    dim.textContent = `${v.label} ${formatValue(v)}`;
-    parts.push(dim);
+  if (hits.length) {
+    for (const v of hits) {
+      const flag = document.createElement("span");
+      flag.className = "xs-flag";
+      flag.dataset.dim = v.id;
+      if (v.color) flag.style.color = v.color;
+      flag.textContent = `${hits.indexOf(v) === 0 ? "⚑ " : ""}${v.label} ${formatValue(v)}`;
+      parts.push(flag);
+    }
+    for (const v of rest) {
+      const dim = document.createElement("span");
+      dim.className = "xs-dim";
+      dim.dataset.dim = v.id;
+      dim.textContent = `${v.label} ${formatValue(v)}`;
+      parts.push(dim);
+    }
   }
   parts.forEach((el, i) => {
     if (i > 0) {
@@ -109,6 +111,13 @@ export function fillSlot(slot: HTMLElement, vs: Verdict[], r: AnalysisResult): v
   });
   slot.classList.remove("xs-in");
   requestAnimationFrame(() => slot.classList.add("xs-in"));
+}
+
+/** Blur the post's own text while it is flagged; CSS :hover reveals it. */
+function setTextBlur(slot: HTMLElement, on: boolean): void {
+  const article = slot.closest("article");
+  const text = article ? mainText(article) : null;
+  if (text) text.classList.toggle("xs-blur", on);
 }
 
 /** One document level listener: click a slot to toggle its detail card, click anywhere else to close. */

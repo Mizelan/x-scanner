@@ -39,5 +39,5 @@ test("formatting and tooltip", () => {
   assert.equal(formatValue(vs[0]!), "3.0/3");
   assert.equal(formatValue(vs[1]!), "99%");
   const tip = tooltip(vs, { inputTokens: 825, costUsd: 0.00003465, latencyMs: 113, model: "jev-1.13.0" });
-  assert.match(tip, /fact-dense 3\.0\/3 · engagement bait 99% · .*825 tok · \$0\.000035 · 113 ms · jev-1\.13\.0$/);
+  assert.match(tip, /정보 3\.0\/3 · 유도 99% · .*825 tok · \$0\.000035 · 113 ms · jev-1\.13\.0$/);
 });

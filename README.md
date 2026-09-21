@@ -7,9 +7,9 @@ https://github.com/user-attachments/assets/bd9782e9-cd8d-426b-8585-e3473a007d11
 
 Each post is sent to Jev with six typed questions in one request as soon as it comes within 800 px
 of the viewport. The answer comes back in about 150 ms as numbers, not prose, and lands in a chip
-under the post, usually before you have scrolled to it. Most posts
-come back clean. The ones that don't get an orange flag. Scroll for a minute and the panel reads
-something like 80 posts, $0.0027.
+under the post, usually before you have scrolled to it. Most posts come back clean and show nothing
+at all; the ones that cross a threshold get a flag chip and their text is blurred until you hover
+it. Scroll for a minute and the panel reads something like 80 posts, $0.0027.
 
 ## Install
 
@@ -32,11 +32,12 @@ post text to `api.typesafe.ai`. No server, no analytics.
 
 ## What you see
 
-**Under each post**, a chip styled like X's own metadata line:
+**Under each post**, a chip styled like X's own metadata line, in Korean:
 
-- `✓ clean` in green when nothing crossed a threshold, followed by every value in gray.
-- `⚑ engagement bait 97%` in orange when something did, followed by the rest in gray.
-- `no text to analyze` or `promoted, not analyzed` in dashed gray for posts that are skipped.
+- Nothing at all when no threshold was crossed — a clean post stays invisible.
+- `⚑ 유도 97%` in orange when one was, followed by every other value in gray. The flagged post's own
+  text is blurred until you hover it.
+- `텍스트 없음` or `광고 · 분석 안 함` in dashed gray for posts that are skipped.
 - Click the chip for a card with a bar per dimension, the token count, cost and latency of that call.
 
 **Bottom right**, a small panel: posts analyzed this session, dollars spent to four decimals, the last
@@ -45,20 +46,19 @@ call's latency, and judgments per second. The dollar figure is exact, not estima
 
 ## The six dimensions
 
-Five judge the text's behavior, one is a topic check. None judge the author. Every one is editable in
-settings.
+All six judge the text's behavior, never the author. Every one is editable in settings.
 
 | label | type | question, in short | flags when |
 | --- | --- | --- | --- |
-| `fact-dense` | Score, 4 levels | how much specific, verifiable content the text has | ≥ 2.5 of 3 |
-| `engagement bait` | Noul | does it end by asking for replies, reposts, likes, follows, or bookmarks | ≥ 75% |
-| `promo` | Noul | is it pushing a product, course, newsletter, community, or paid offer | ≥ 75% |
-| `secondhand` | Noul | does it only relay someone else's view without adding its own argument | ≥ 75% |
-| `filler` | Score, 3 levels | how much of it is filler relative to the information it carries | ≥ 1.5 of 2 |
-| `jevpilled` | Noul | is the post about Jev or TypeSafe (not a person named Jev). Flags in red | ≥ 75% |
+| `정보` | Score, 4 levels | how much specific, verifiable content the text has | ≥ 2.5 of 3 |
+| `유도` | Noul | does it end by asking for replies, reposts, likes, follows, or bookmarks | ≥ 75% |
+| `홍보` | Noul | is it pushing a product, course, newsletter, community, or paid offer | ≥ 60% |
+| `재탕` | Noul | does it only relay someone else's view without adding its own argument | ≥ 75% |
+| `잡담` | Score, 3 levels | how much of it is filler relative to the information it carries | ≥ 1.5 of 2 |
+| `쇼츠` | Noul | does it read like a hook-first, low-substance short tip built for a short-form feed | ≥ 75% |
 
 A Noul answer is Jev's probability that the answer is yes. A Score answer is a position on ordered
-levels you describe. `fact-dense`, the one positive label, uses these four:
+levels you describe. `정보`, the one positive label, uses these four:
 
 0. No specific claims; opinion, mood, or a generic statement with nothing that could be checked
 1. One concrete detail such as a number, name, date, or link; the rest is general
@@ -88,12 +88,13 @@ Measured on 2026-09-18 with `jev-1.13.0` over the 18 sample posts in `test/fixtu
 - **Only when logged in as**: a handle, for people who switch accounts and want it on one.
 - **Dimensions**: add, remove, disable, rename, switch between Noul and Score, edit the question, levels
   and criteria, set the threshold, whether the flag fires above or below it, and the flag color.
-- **Advanced**: model (pinned to `jev-1.13.0` so thresholds keep their meaning), price, base URL,
+- **Advanced**: model (defaults to `jev-1.13.0` so thresholds keep their meaning), price, base URL,
   concurrency, look-ahead distance, wait before analyzing, cache size.
 - **Lifetime**: totals across sessions, a reset, and a cache clear.
 
-The questions default to English on purpose. Jev's docs say English is where its accuracy is best and
-CJK is handled but not equally well. The post text goes in as written, in whatever language.
+The chips, HUD and settings page are in Korean. The questions sent to Jev stay in English on purpose:
+Jev's docs say English is where its accuracy is best and CJK is handled but not equally well. The post
+text goes in as written, in whatever language. Renaming a label is display-only and re-bills nothing.
 
 ## How it works
 
@@ -171,14 +172,14 @@ set `CHROME_PATH`). Branded Google Chrome no longer accepts `--load-extension`.
 ## 中文說明
 
 一個 Chrome 外掛。你在 X 上滑到的每則推文，一接近畫面（預設提前 800 px）就送去 Jev 做六個維度的判斷：
-資訊密度、Engagement bait、推銷、轉述、灌水，以及是否在談 Jev 本身。六題併在同一個 request，約 150 毫秒回來。結果顯示
-在推文下方的一個小框：沒有超過門檻就是綠色的 ✓ clean，有的話橘色標出，後面接每個維度的數值；點一下看完整
-細節。右下角面板即時顯示本次分析則數、累計花費（小數點後四位，用 Jev 回傳的 token 數精確計算）、上一次呼叫
-延遲、每秒判斷數。
+資訊密度（정보）、互動誘導（유도）、推銷（홍보）、轉述（재탕）、灌水（잡담）、短影音式小撇步（쇼츠）。
+六題併在同一個 request，約 150 毫秒回來。沒有超過門檻的推文完全不顯示；超過門檻的在推文下方標出，
+且推文本會被模糊，滑鼠移入才清楚，後面接每個維度的數值；點一下看完整細節。右下角面板即時顯示本次分析
+則數、累計花費（小數點後四位，用 Jev 回傳的 token 數精確計算）、上一次呼叫延遲、每秒判斷數。
 
 同時進行的請求上限 6，超過排隊；滑走的推文自動離隊不計費。結果以推文 ID 快取，回捲、重新整理都不重新計費。
-廣告與純圖片推文不送出。無後端、無資料蒐集，API key 只存在本機。所有問題與門檻都可在設定頁編輯。提示詞預設
-英文，因為 Jev 文件說明英文準確度最佳；推文本身以原文送出。
+廣告與純圖片推文不送出。無後端、無資料蒐集，API key 只存在本機。介面（標籤、面板、設定頁）為韓文，
+但送去 Jev 的問題維持英文。所有問題與門檻都可在設定頁編輯。
 
 ## License
 

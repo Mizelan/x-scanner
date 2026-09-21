@@ -86,7 +86,7 @@ test("timeline: dwell triggers analysis, pills render, promoted skipped, cache s
   });
   assert.ok(hud.analyzed >= 12, `analyzed ${hud.analyzed}`);
   assert.match(hud.latency, /^\d+ ms$/);
-  assert.match(hud.rate, /judgments\/s$/);
+  assert.match(hud.rate, /판정\/초$/);
 
   // Cost shown equals exact token usage times list price, to the 4 decimals the HUD shows.
   const expected = (server.totalTokens() * 0.042) / 1e6;
@@ -100,9 +100,9 @@ test("timeline: dwell triggers analysis, pills render, promoted skipped, cache s
       return { dim: s.slice(0, i), text: s.slice(i + 1) };
     }),
   );
-  assert.ok(pills.some((p) => p.dim === "engagement_bait" && /engagement bait 9\d%/.test(p.text ?? "")), "bait flag with value");
+  assert.ok(pills.some((p) => p.dim === "engagement_bait" && /유도 9\d%/.test(p.text ?? "")), "bait flag with value");
   assert.ok(pills.some((p) => p.dim === "promotion"), "promo pill");
-  assert.ok(pills.some((p) => p.dim === "info_density" && /fact-dense 2\.\d\/3$/.test(p.text ?? "")), "fact-dense flag with value");
+  assert.ok(pills.some((p) => p.dim === "info_density" && /정보 2\.\d\/3$/.test(p.text ?? "")), "fact-dense flag with value");
   assert.ok(pills.some((p) => p.dim === "padding"), "padded pill");
   assert.ok(pills.some((p) => p.dim === "secondhand"), "secondhand pill");
   const plain = await page.evaluate(() => {
@@ -117,19 +117,30 @@ test("timeline: dwell triggers analysis, pills render, promoted skipped, cache s
       afterText: slot?.previousElementSibling?.getAttribute("data-testid"),
     };
   });
-  assert.deepEqual(plain, { state: "done", verdict: "clean", flags: 0, ok: "✓ clean", values: 6, afterText: "tweetText" }, "a plain post shows a green check and every value under its text");
+  assert.deepEqual(plain, { state: "done", verdict: "clean", flags: 0, ok: undefined, values: 0, afterText: "tweetText" }, "a clean post shows nothing at all");
   const flagged = await page.evaluate(() => {
     const art = Array.from(document.querySelectorAll("article")).find((a) => a.textContent?.includes("Bookmark this"));
     return (art?.querySelector(".xs-slot") as HTMLElement | null)?.dataset.verdict;
   });
   assert.equal(flagged, "flag");
+  const blur = await page.evaluate(() => {
+    const textOf = (needle: string) =>
+      Array.from(document.querySelectorAll("article"))
+        .find((a) => a.textContent?.includes(needle))
+        ?.querySelector('[data-testid="tweetText"]');
+    return {
+      flagged: textOf("Bookmark this")?.classList.contains("xs-blur") ?? false,
+      clean: textOf("Coffee tastes better")?.classList.contains("xs-blur") ?? false,
+    };
+  });
+  assert.deepEqual(blur, { flagged: true, clean: false }, "a flagged post's text is blurred, a clean post's is not");
   const skipped = await page.evaluate(() => {
     const art = Array.from(document.querySelectorAll("article")).find((a) => a.textContent?.includes("Meet the new Pixel"));
     return art?.querySelector(".xs-note")?.textContent;
   });
-  assert.equal(skipped, "promoted, not analyzed");
+  assert.equal(skipped, "광고 · 분석 안 함");
 
-  // Clicking a pill opens the detail card with all five values and does not navigate.
+  // Clicking a pill opens the detail card with every dimension and does not navigate.
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.waitForTimeout(400);
   await page.click('.xs-flag[data-dim="engagement_bait"]');
@@ -140,7 +151,7 @@ test("timeline: dwell triggers analysis, pills render, promoted skipped, cache s
     foot: document.querySelector(".xs-detail-foot")?.textContent ?? "",
   }));
   assert.equal(detail.rows, 6);
-  assert.equal(detail.hit, "engagement bait");
+  assert.equal(detail.hit, "유도");
   assert.match(detail.foot, /^\d+ tok · \$0\.\d{6} · \d+ ms · jev-1\.13\.0$/);
   await page.mouse.click(5, 400);
   await page.waitForFunction(() => !document.querySelector(".xs-detail"));
@@ -152,17 +163,8 @@ test("timeline: dwell triggers analysis, pills render, promoted skipped, cache s
   assert.equal(quote?.quoted_text, "Paul Graham: The best founders are the ones who are relentlessly resourceful.");
   const reply = server.requests.find((r) => r.text.startsWith("Agreed, and the second-order"));
   assert.equal(reply?.is_reply, true);
-  assert.deepEqual(server.requests[0]!.questionIds, ["info_density", "engagement_bait", "promotion", "secondhand", "padding", "about_jev"]);
-  assert.ok(pills.some((p) => p.dim === "about_jev" && /jevpilled 9\d%/.test(p.text ?? "")), "jevpilled flag");
-  const red = await page.evaluate(() => {
-    const art = Array.from(document.querySelectorAll("article")).find((a) => a.textContent?.includes("TypeSafe just shipped"));
-    const slot = art?.querySelector(".xs-slot") as HTMLElement | null;
-    const flag = slot?.querySelector('.xs-flag[data-dim="about_jev"]') as HTMLElement | null;
-    return { flag: flag && getComputedStyle(flag).color, border: slot && getComputedStyle(slot).borderTopColor };
-  });
-  assert.equal(red.flag, "rgb(244, 33, 46)", "jevpilled flag is red");
-  // color-mix() output: rgb(244, 33, 46) at 70%, which Chrome reports as color(srgb 0.9569 0.1294 0.1804 / 0.7).
-  assert.match(red.border ?? "", /244, 33, 46|srgb 0\.95\d* 0\.12\d* 0\.18\d*/, "chip border takes the red");
+  assert.deepEqual(server.requests[0]!.questionIds, ["info_density", "engagement_bait", "promotion", "secondhand", "padding", "shorts_tip"]);
+  assert.ok(!pills.some((p) => p.dim === "about_jev"), "retired about_jev never renders");
   assert.equal(server.requests[0]!.model, "jev-1.13.0");
 
   // Every post was billed at most once even though the list recycled and remounted nodes.
@@ -189,7 +191,7 @@ test("timeline: dwell triggers analysis, pills render, promoted skipped, cache s
   await page.waitForSelector(".xs-hud");
   await page.waitForTimeout(1500);
   const cachedFoot = await page.evaluate(() => document.querySelector(".xs-hud-foot")?.textContent ?? "");
-  assert.match(cachedFoot, /cached [1-9]\d*/, `cache hits after reload: ${cachedFoot}`);
+  assert.match(cachedFoot, /캐시 [1-9]\d*/, `cache hits after reload: ${cachedFoot}`);
   assert.equal(server.requests.length, beforeReload, "reload re-bills nothing for already seen posts");
 
   assert.deepEqual(errors, [], "no page errors");
@@ -220,14 +222,14 @@ test("scope: home only pauses on other paths, account filter pauses on mismatch"
   const page = await ctx.newPage();
   await page.goto(`${base}/timeline.html`);
   await page.waitForSelector(".xs-hud-msg");
-  assert.match(await page.textContent(".xs-hud-msg") ?? "", /home timeline only/);
+  assert.match(await page.textContent(".xs-hud-msg") ?? "", /홈 타임라인만/);
   await page.waitForTimeout(800);
   assert.equal(server.requests.length, 0);
 
   await sw.evaluate(async (baseUrl: string) => {
     await chrome.storage.local.set({ settings: { apiKey: "test-key", baseUrl, scope: "all", accountHandle: "someoneelse" } });
   }, base);
-  await page.waitForFunction(() => /logged in as @demo_user/.test(document.querySelector(".xs-hud-msg")?.textContent ?? ""), null, { timeout: 5000 });
+  await page.waitForFunction(() => /@demo_user로 로그인됨/.test(document.querySelector(".xs-hud-msg")?.textContent ?? ""), null, { timeout: 5000 });
   assert.equal(server.requests.length, 0);
 
   await sw.evaluate(async (baseUrl: string) => {
@@ -239,7 +241,7 @@ test("scope: home only pauses on other paths, account filter pauses on mismatch"
   await sw.evaluate(async () => {
     await chrome.storage.local.set({ settings: { apiKey: "" } });
   });
-  await page.waitForFunction(() => /API key/.test(document.querySelector(".xs-hud-msg")?.textContent ?? ""), null, { timeout: 5000 });
+  await page.waitForFunction(() => /API 키/.test(document.querySelector(".xs-hud-msg")?.textContent ?? ""), null, { timeout: 5000 });
 });
 
 test("options page: renders dimensions, test connection and save work", async (t) => {
@@ -272,7 +274,7 @@ test("options page: renders dimensions, test connection and save work", async (t
   await page.click("details > summary");
   await page.fill("#baseUrl", `http://127.0.0.1:${server.port}`);
   await page.click("#test");
-  await page.waitForFunction(() => /jev-1\.13\.0 · \d+ ms · \d+ tokens/.test(document.querySelector("#testOut")?.textContent ?? ""), null, { timeout: 10000 });
+  await page.waitForFunction(() => /jev-1\.13\.0 · \d+ ms · \d+ 토큰/.test(document.querySelector("#testOut")?.textContent ?? ""), null, { timeout: 10000 });
   assert.equal(server.requests.length, 1);
   assert.match(server.requests[0]!.text, /RT if you agree/);
 
@@ -283,7 +285,7 @@ test("options page: renders dimensions, test connection and save work", async (t
   await page.fill(".dim:nth-child(7) .d-id", "hot_take");
   await page.fill(".dim:nth-child(7) .d-instructions", "Is `text` a sweeping claim stated as certain fact without evidence?");
   await page.click("#save");
-  await page.waitForFunction(() => document.querySelector("#saveOut")?.textContent === "saved");
+  await page.waitForFunction(() => document.querySelector("#saveOut")?.textContent === "저장됨");
   const saved = (await sw.evaluate(async () => (await chrome.storage.local.get("settings")).settings)) as {
     apiKey: string;
     dimensions: { id: string; threshold: number }[];
@@ -296,10 +298,10 @@ test("options page: renders dimensions, test connection and save work", async (t
   // Validation blocks a broken dimension.
   await page.fill(".dim:nth-child(7) .d-id", "Not Valid");
   await page.click("#save");
-  await page.waitForFunction(() => /fix 1 problem/.test(document.querySelector("#saveOut")?.textContent ?? ""));
+  await page.waitForFunction(() => /위 1개 문제/.test(document.querySelector("#saveOut")?.textContent ?? ""));
 
   assert.deepEqual(errors, []);
   await page.fill(".dim:nth-child(7) .d-id", "hot_take");
   await page.click("#save");
-  await page.waitForFunction(() => document.querySelector("#saveOut")?.textContent === "saved");
+  await page.waitForFunction(() => document.querySelector("#saveOut")?.textContent === "저장됨");
 });

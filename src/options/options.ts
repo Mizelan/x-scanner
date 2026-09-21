@@ -56,13 +56,13 @@ function dimCard(d: Dimension): HTMLElement {
       th.min = "0";
       th.max = "1";
       th.step = "0.05";
-      $(".d-hint", card).textContent = "probability of yes, 0 to 1";
+      $(".d-hint", card).textContent = "예일 확률, 0~1";
     } else {
       const n = levelsOf(card).length;
       th.min = "0";
       th.max = String(Math.max(1, n - 1));
       th.step = "0.1";
-      $(".d-hint", card).textContent = `level index, 0 to ${Math.max(1, n - 1)}`;
+      $(".d-hint", card).textContent = `레벨 인덱스, 0~${Math.max(1, n - 1)}`;
     }
   };
   $(".d-type", card).addEventListener("change", refreshHint);
@@ -109,7 +109,7 @@ function readDims(): { dims: Dimension[]; problems: number } {
       color: colorOf(card),
     };
     const errs = validateDimension(d);
-    if (seen.has(d.id)) errs.push("duplicate id");
+    if (seen.has(d.id)) errs.push("id 중복");
     seen.add(d.id);
     $(".d-problems", card).textContent = errs.join(" · ");
     problems += errs.length;
@@ -142,10 +142,10 @@ async function renderStats(): Promise<void> {
   const got = (await chrome.storage.local.get("cache")) as { cache?: { entries?: unknown[] } };
   const cached = got.cache?.entries?.length ?? 0;
   $("#statsOut").innerHTML = [
-    ["posts analyzed", s.analyzed.toLocaleString()],
-    ["spent", `$${s.costUsd.toFixed(4)}`],
-    ["input tokens", s.inputTokens.toLocaleString()],
-    ["cached results", cached.toLocaleString()],
+    ["분석한 포스트", s.analyzed.toLocaleString()],
+    ["사용액", `$${s.costUsd.toFixed(4)}`],
+    ["입력 토큰", s.inputTokens.toLocaleString()],
+    ["캐시된 결과", cached.toLocaleString()],
   ]
     .map(([k, v]) => `<div class="stat"><b>${v}</b><span>${k}</span></div>`)
     .join("");
@@ -163,7 +163,7 @@ async function main(): Promise<void> {
   $("#toggleKey").addEventListener("click", () => {
     const k = $<HTMLInputElement>("#apiKey");
     k.type = k.type === "password" ? "text" : "password";
-    $("#toggleKey").textContent = k.type === "password" ? "show" : "hide";
+    $("#toggleKey").textContent = k.type === "password" ? "보기" : "숨기기";
   });
 
   $("#addDim").addEventListener("click", () => {
@@ -187,11 +187,11 @@ async function main(): Promise<void> {
   $("#save").addEventListener("click", async () => {
     const { settings, problems } = readForm();
     if (problems) {
-      flash($("#saveOut"), `fix ${problems} problem${problems === 1 ? "" : "s"} above`, "err");
+      flash($("#saveOut"), `위 ${problems}개 문제를 수정하세요`, "err");
       return;
     }
     await saveSettings(settings);
-    flash($("#saveOut"), "saved", "ok");
+    flash($("#saveOut"), "저장됨", "ok");
     setTimeout(() => flash($("#saveOut"), "", "muted"), 2000);
   });
 
@@ -199,20 +199,20 @@ async function main(): Promise<void> {
     const out = $("#testOut");
     const { settings, problems } = readForm();
     if (problems) {
-      flash(out, "fix the dimension problems first", "err");
+      flash(out, "차원 문제를 먼저 수정하세요", "err");
       return;
     }
     await saveSettings(settings);
-    flash(out, "calling Jev…", "muted");
+    flash(out, "Jev 호출 중…", "muted");
     const reply = (await chrome.runtime.sendMessage({ type: "testConnection" })) as AnalyzeReply;
     if (!reply.ok) {
-      flash(out, `failed: ${reply.error}`, "err");
+      flash(out, `실패: ${reply.error}`, "err");
       return;
     }
     const vals = Object.entries(reply.answers)
       .map(([k, a]) => `${k} ${answerValue(a).toFixed(2)}`)
       .join(", ");
-    flash(out, `${reply.model} · ${reply.latencyMs} ms · ${reply.usage.input_tokens} tokens · $${reply.costUsd.toFixed(6)} · ${vals}`, "ok");
+    flash(out, `${reply.model} · ${reply.latencyMs} ms · ${reply.usage.input_tokens} 토큰 · $${reply.costUsd.toFixed(6)} · ${vals}`, "ok");
     await renderStats();
   });
 

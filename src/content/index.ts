@@ -11,7 +11,7 @@ import { Hud } from "./hud.ts";
 import { ensureSlot, fillSlot, getSlot, installDetailHandler, markSlot } from "./render.ts";
 import { verdicts } from "./labels.ts";
 
-const SETTINGS_LINK = `<a class="xs-link">settings</a>`;
+const SETTINGS_LINK = `<a class="xs-link">설정</a>`;
 
 class App {
   private hud: Hud;
@@ -42,11 +42,11 @@ class App {
     this.hud.mount();
     this.stats.subscribe((s) => this.hud.update(s));
     if (!this.settings.apiKey) {
-      this.hud.message(`Add your TypeSafe API key in ${SETTINGS_LINK}`);
+      this.hud.message(`TypeSafe API 키를 ${SETTINGS_LINK}에서 입력하세요`);
       return;
     }
     if (Object.keys(buildQuestions(this.settings.dimensions)).length === 0) {
-      this.hud.message(`No dimensions enabled · ${SETTINGS_LINK}`);
+      this.hud.message(`활성화된 차원 없음 · ${SETTINGS_LINK}`);
       return;
     }
     await this.store.load();
@@ -94,11 +94,11 @@ class App {
 
   private pausedReason(): string | null {
     const s = this.settings;
-    if (s.scope === "home" && location.pathname !== "/home") return "paused · home timeline only";
+    if (s.scope === "home" && location.pathname !== "/home") return "일시정지 · 홈 타임라인만";
     if (s.accountHandle) {
       const h = loggedInHandle();
-      if (!h) return "paused · can't read the logged in account";
-      if (h.toLowerCase() !== s.accountHandle.toLowerCase()) return `paused · logged in as @${h}`;
+      if (!h) return "일시정지 · 로그인 계정을 읽을 수 없음";
+      if (h.toLowerCase() !== s.accountHandle.toLowerCase()) return `일시정지 · @${h}로 로그인됨`;
     }
     return null;
   }
@@ -121,11 +121,11 @@ class App {
     const slot = ensureSlot(article, t.id);
     this.slots.set(t.id, slot);
     if (t.promoted) {
-      markSlot(slot, "skipped", "promoted, not analyzed");
+      markSlot(slot, "skipped", "광고 · 분석 안 함");
       return;
     }
     if (!t.state.text) {
-      markSlot(slot, "skipped", "no text to analyze");
+      markSlot(slot, "skipped", "텍스트 없음");
       return;
     }
     const cached = this.store.get(t.id);
@@ -155,14 +155,14 @@ class App {
       reply = (await chrome.runtime.sendMessage({ type: "analyze", state })) as AnalyzeReply;
     } catch (e) {
       const msg = String((e as Error)?.message ?? e);
-      reply = { ok: false, error: /context invalidated/i.test(msg) ? "extension reloaded, refresh the page" : msg };
+      reply = { ok: false, error: /context invalidated/i.test(msg) ? "확장이 재로드됨, 페이지를 새로고침하세요" : msg };
     }
     if (!reply || !reply.ok) {
-      const msg = reply?.error ?? "no reply from service worker";
+      const msg = reply?.error ?? "서비스 워커 응답 없음";
       this.stats.recordError(msg);
       const s = this.slots.get(id);
       if (s) markSlot(s, "error", msg);
-      if (reply?.status === 401) this.fatal(`Jev rejected the API key · ${SETTINGS_LINK}`);
+      if (reply?.status === 401) this.fatal(`Jev가 API 키를 거부함 · ${SETTINGS_LINK}`);
       return;
     }
     const result: AnalysisResult = {

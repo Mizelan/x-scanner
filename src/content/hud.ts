@@ -12,7 +12,7 @@ export class Hud {
   constructor(onOpenSettings: () => void) {
     this.root = el("div", "xs-hud");
     const title = el("div", "xs-hud-title");
-    title.innerHTML = `<span>x-scanner</span><span class="xs-hud-tog" aria-label="collapse">–</span>`;
+    title.innerHTML = `<span>x-scanner</span><span class="xs-hud-tog" aria-label="접기">–</span>`;
     title.addEventListener("click", () => this.toggle());
     this.root.appendChild(title);
 
@@ -22,10 +22,10 @@ export class Hud {
 
     this.body = el("div", "xs-hud-body");
     for (const [key, label] of [
-      ["analyzed", "analyzed"],
-      ["cost", "spent"],
-      ["latency", "last call"],
-      ["rate", "rate"],
+      ["analyzed", "분석"],
+      ["cost", "비용"],
+      ["latency", "최근 호출"],
+      ["rate", "속도"],
     ] as const) {
       const row = el("div", "xs-hud-row");
       const k = el("span", "xs-hud-k");
@@ -40,7 +40,7 @@ export class Hud {
     this.v.foot = foot;
     this.body.appendChild(foot);
     const gear = el("a", "xs-hud-gear");
-    gear.textContent = "settings";
+    gear.textContent = "설정";
     gear.addEventListener("click", (e) => {
       e.preventDefault();
       onOpenSettings();
@@ -81,9 +81,9 @@ export class Hud {
     this.v.analyzed!.textContent = String(s.analyzed);
     this.v.cost!.textContent = `$${s.costUsd.toFixed(4)}`;
     this.v.latency!.textContent = s.lastLatencyMs === null ? "–" : `${s.lastLatencyMs} ms`;
-    this.v.rate!.textContent = `${s.judgmentsPerSec.toFixed(1)} judgments/s`;
-    const bits = [`queue ${s.pending}`, `in flight ${s.inflight}`, `cached ${s.cacheHits}`];
-    if (s.errors) bits.push(`errors ${s.errors}`);
+    this.v.rate!.textContent = `${s.judgmentsPerSec.toFixed(1)} 판정/초`;
+    const bits = [`대기 ${s.pending}`, `진행 ${s.inflight}`, `캐시 ${s.cacheHits}`];
+    if (s.errors) bits.push(`오류 ${s.errors}`);
     this.v.foot!.textContent = bits.join(" · ");
     this.v.foot!.title = s.lastError ?? "";
   }

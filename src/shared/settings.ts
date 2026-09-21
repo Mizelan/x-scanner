@@ -4,8 +4,8 @@ import { DEFAULT_BASE_URL, DEFAULT_MODEL, DEFAULT_PRICE_PER_MTOK } from "./jev.t
 
 export const SETTINGS_KEY = "settings";
 export const STATS_KEY = "stats";
-/** v1: dwell 200 ms. v2: dwell 0, 800 px look-ahead. v3: scope all of X. v4: about_jev. v5: jevpilled, flag colors. */
-export const SETTINGS_VERSION = 5;
+/** v1: dwell 200 ms. v2: dwell 0, 800 px look-ahead. v3: scope all of X. v4: about_jev. v5: jevpilled, flag colors. v6: shorts_tip. v7: Korean labels, promotion 0.6. v8: about_jev removed. */
+export const SETTINGS_VERSION = 8;
 
 export const DEFAULT_SETTINGS: Settings = {
   enabled: true,
@@ -31,7 +31,11 @@ export function normalizeSettings(raw: unknown): Settings {
   const dwellRaw = version < 2 && Number(r.dwellMs) === 200 ? 0 : r.dwellMs;
   // v1 and v2 saved the old "home" default; follow the new default.
   const scopeRaw = version < 3 && r.scope === "home" ? "all" : r.scope;
-  const dims = Array.isArray(r.dimensions) && r.dimensions.length ? r.dimensions.map(normalizeDimension).map((d) => migrateLabel(d, version)) : [...DEFAULT_DIMENSIONS];
+  let dims = Array.isArray(r.dimensions) && r.dimensions.length ? r.dimensions.map(normalizeDimension).map(migrateLabel) : [...DEFAULT_DIMENSIONS];
+  // about_jev was retired in v8; drop it from stored settings.
+  if (version < 8) dims = dims.filter((d) => d.id !== "about_jev");
+  // v7 lowered promotion's default threshold; follow it unless the user set their own.
+  if (version < 7) dims = dims.map((d) => (d.id === "promotion" && d.threshold === 0.75 ? { ...d, threshold: 0.6 } : d));
   // Defaults added after this install's version are appended; ones the user deleted later stay deleted.
   for (const [v, ids] of Object.entries(ADDED_IN_VERSION)) {
     if (version >= Number(v)) continue;
@@ -57,19 +61,36 @@ export function normalizeSettings(raw: unknown): Settings {
   };
 }
 
-/** Default labels that were renamed after release; stored settings still carrying the old one move along. */
-const RENAMED_LABELS: Record<string, [string, string]> = {
+/** Legacy label renames, applied before localization. */
+const LEGACY_LABELS: Record<string, [string, string]> = {
   info_density: ["dense", "fact-dense"],
   padding: ["padded", "filler"],
-  about_jev: ["jev", "jevpilled"],
 };
 
-function migrateLabel(d: Dimension, version: number): Dimension {
-  const r = RENAMED_LABELS[d.id];
-  let out = r && d.label === r[0] ? { ...d, label: r[1] } : d;
-  // v5 introduced flag colors; give a pre-v5 about_jev its default red unless one was set.
-  if (version < 5 && out.id === "about_jev" && !out.color) out = { ...out, color: DEFAULT_DIMENSIONS.find((x) => x.id === "about_jev")?.color };
-  return out;
+/** English default label -> shipped Korean default. Only the shipped default moves; a user's own label is kept. */
+const ENGLISH_DEFAULT_LABELS: Record<string, string> = {
+  info_density: "fact-dense",
+  engagement_bait: "engagement bait",
+  promotion: "promo",
+  secondhand: "secondhand",
+  padding: "filler",
+  shorts_tip: "shorts-tip",
+};
+const KOREAN_DEFAULT_LABELS: Record<string, string> = {
+  info_density: "정보",
+  engagement_bait: "유도",
+  promotion: "홍보",
+  secondhand: "재탕",
+  padding: "잡담",
+  shorts_tip: "쇼츠",
+};
+
+function migrateLabel(d: Dimension): Dimension {
+  const r = LEGACY_LABELS[d.id];
+  const renamed = r && d.label === r[0] ? { ...d, label: r[1] } : d;
+  const en = ENGLISH_DEFAULT_LABELS[renamed.id];
+  const ko = KOREAN_DEFAULT_LABELS[renamed.id];
+  return en && ko && renamed.label === en ? { ...renamed, label: ko } : renamed;
 }
 
 function normalizeDimension(d: Partial<Dimension>): Dimension {

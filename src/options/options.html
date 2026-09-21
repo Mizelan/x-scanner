@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="ko">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>x-scanner settings</title>
+    <title>x-scanner 설정</title>
     <link rel="stylesheet" href="options.css" />
   </head>
   <body>
@@ -11,120 +11,120 @@
       <header>
         <h1>x-scanner</h1>
         <p class="sub">
-          Typed Jev judgments on every post you scroll past. Only the post text goes to TypeSafe. Your key stays in this
-          browser's extension storage.
+          스크롤하는 모든 포스트에 Jev 타입 판정을 붙입니다. 포스트 텍스트만 TypeSafe로 전송되고, 키는 이 브라우저의
+          확장 저장소에만 남습니다.
         </p>
       </header>
 
       <section>
-        <h2>Connection</h2>
+        <h2>연결</h2>
         <label
-          >TypeSafe API key
+          >TypeSafe API 키
           <span class="inline">
-            <input id="apiKey" type="password" autocomplete="off" spellcheck="false" placeholder="paste your key" />
-            <button id="toggleKey" type="button" class="ghost">show</button>
+            <input id="apiKey" type="password" autocomplete="off" spellcheck="false" placeholder="키 붙여넣기" />
+            <button id="toggleKey" type="button" class="ghost">보기</button>
           </span>
         </label>
         <div class="row">
-          <label>Model <input id="model" spellcheck="false" /></label>
-          <label>Price, USD per 1M input tokens <input id="pricePerMtok" type="number" step="0.001" min="0" /></label>
+          <label>모델 <input id="model" spellcheck="false" /></label>
+          <label>가격, 100만 입력 토큰당 USD <input id="pricePerMtok" type="number" step="0.001" min="0" /></label>
         </div>
         <details>
-          <summary>Advanced</summary>
+          <summary>고급</summary>
           <div class="row">
             <label>Base URL <input id="baseUrl" spellcheck="false" /></label>
-            <label>Concurrent requests <input id="concurrency" type="number" min="1" max="32" /></label>
+            <label>동시 요청 수 <input id="concurrency" type="number" min="1" max="32" /></label>
           </div>
           <div class="row">
-            <label>Analyze ahead, px below the viewport <input id="lookaheadPx" type="number" min="0" max="5000" /></label>
-            <label>Wait before analyzing, ms <input id="dwellMs" type="number" min="0" max="5000" /></label>
+            <label>미리 분석, 뷰포트 아래 px <input id="lookaheadPx" type="number" min="0" max="5000" /></label>
+            <label>분석 전 대기, ms <input id="dwellMs" type="number" min="0" max="5000" /></label>
           </div>
           <div class="row">
-            <label>Result cache size, posts <input id="cacheMax" type="number" min="100" max="100000" /></label>
+            <label>결과 캐시 크기, 포스트 <input id="cacheMax" type="number" min="100" max="100000" /></label>
           </div>
         </details>
         <div class="actions">
-          <button id="test" type="button">Test connection</button>
+          <button id="test" type="button">연결 테스트</button>
           <span id="testOut" class="muted"></span>
         </div>
       </section>
 
       <section>
-        <h2>Where it runs</h2>
-        <label class="check"><input id="enabled" type="checkbox" /> Enabled</label>
+        <h2>실행 범위</h2>
+        <label class="check"><input id="enabled" type="checkbox" /> 사용</label>
         <div class="row">
           <label
-            >Scope
+            >범위
             <select id="scope">
-              <option value="all">Everywhere on X</option>
-              <option value="home">Home timeline only</option>
+              <option value="all">X 전체</option>
+              <option value="home">홈 타임라인만</option>
             </select>
           </label>
-          <label>Only when logged in as <input id="accountHandle" placeholder="handle, empty for any" spellcheck="false" /></label>
+          <label>다음 계정 로그인 시에만 <input id="accountHandle" placeholder="핸들, 비우면 전체" spellcheck="false" /></label>
         </div>
       </section>
 
       <section>
-        <h2>Dimensions</h2>
+        <h2>차원</h2>
         <p class="muted">
-          Each dimension is one typed question. All of them ride in the same request. A flag shows only when the answer
-          crosses its threshold. Thresholds, labels, direction and color are display policy and never re-bill a post.
-          Editing a question or the model does.
+          각 차원은 하나의 타입 지정 질문입니다. 모두 한 번의 요청에 함께 실립니다. 답이 임계치를 넘을 때만 칩이
+          표시됩니다. 임계치·칩 텍스트·방향·색은 표시 정책이라 포스트를 다시 과금하지 않습니다. 질문이나 모델을
+          바꾸면 다시 과금됩니다.
         </p>
         <div id="dimList"></div>
         <div class="actions">
-          <button id="addDim" type="button">Add dimension</button>
-          <button id="resetDims" type="button" class="ghost">Reset to defaults</button>
+          <button id="addDim" type="button">차원 추가</button>
+          <button id="resetDims" type="button" class="ghost">기본값으로 초기화</button>
         </div>
       </section>
 
       <section>
-        <h2>Lifetime</h2>
+        <h2>누적</h2>
         <div id="statsOut" class="stats"></div>
         <div class="actions">
-          <button id="resetStats" type="button" class="ghost">Reset counters</button>
-          <button id="clearCache" type="button" class="ghost">Clear result cache</button>
+          <button id="resetStats" type="button" class="ghost">카운터 초기화</button>
+          <button id="clearCache" type="button" class="ghost">결과 캐시 삭제</button>
         </div>
       </section>
 
       <footer class="savebar">
-        <button id="save" type="button" class="primary">Save</button>
+        <button id="save" type="button" class="primary">저장</button>
         <span id="saveOut" class="muted"></span>
       </footer>
     </main>
     <template id="dimTemplate">
       <div class="dim">
         <div class="dim-head">
-          <label class="check"><input type="checkbox" class="d-enabled" /> on</label>
-          <input class="d-label" placeholder="flag text" />
+          <label class="check"><input type="checkbox" class="d-enabled" /> 켜기</label>
+          <input class="d-label" placeholder="칩 텍스트" />
           <input class="d-id" placeholder="snake_case_id" spellcheck="false" />
           <select class="d-type">
-            <option value="noul">Noul · yes/no probability</option>
-            <option value="score">Score · ordered levels</option>
+            <option value="noul">Noul · 예/아니오 확률</option>
+            <option value="score">Score · 순서형 레벨</option>
           </select>
-          <button type="button" class="d-remove ghost">remove</button>
+          <button type="button" class="d-remove ghost">삭제</button>
         </div>
-        <label>Question <textarea class="d-instructions" rows="2" spellcheck="false"></textarea></label>
+        <label>질문 (Jev 프롬프트 · 영어 유지 권장) <textarea class="d-instructions" rows="2" spellcheck="false"></textarea></label>
         <div class="d-score">
-          <label>Levels, one per line, lowest first <textarea class="d-levels" rows="4" spellcheck="false"></textarea></label>
+          <label>레벨, 줄마다 하나, 낮은 순 <textarea class="d-levels" rows="4" spellcheck="false"></textarea></label>
         </div>
         <div class="d-noul">
           <div class="row">
-            <label>Yes means <textarea class="d-true" rows="3" spellcheck="false"></textarea></label>
-            <label>No means <textarea class="d-false" rows="3" spellcheck="false"></textarea></label>
+            <label>예의 의미 <textarea class="d-true" rows="3" spellcheck="false"></textarea></label>
+            <label>아니오의 의미 <textarea class="d-false" rows="3" spellcheck="false"></textarea></label>
           </div>
         </div>
         <div class="row">
           <label
-            >Show flag when value is
+            >값이 다음일 때 표시
             <select class="d-direction">
-              <option value="above">at or above</option>
-              <option value="below">at or below</option>
+              <option value="above">이상</option>
+              <option value="below">이하</option>
             </select>
           </label>
-          <label>Threshold <input class="d-threshold" type="number" step="0.05" /> <span class="d-hint muted"></span></label>
+          <label>임계치 <input class="d-threshold" type="number" step="0.05" /> <span class="d-hint muted"></span></label>
         </div>
-        <label class="inline-color">Flag color <input class="d-color" type="color" /> <span class="muted">orange is the default</span></label>
+        <label class="inline-color">칩 색상 <input class="d-color" type="color" /> <span class="muted">기본은 주황</span></label>
         <div class="d-problems"></div>
       </div>
     </template>

@@ -15,18 +15,20 @@ x-scanner runs a behavioral read on every post you scroll past on X, judged by J
 One model, and shows you exactly what it cost.
 
 Each post is sent to Jev with six typed questions in one request as it comes near your viewport. The
-answer comes back in about 150 ms as numbers, not prose, and lands in a small chip under the post: a
-green check when nothing crossed a threshold, or a flag with its value when something did. Click the
-chip for every value. A panel in the corner counts posts analyzed, dollars spent to four decimals, the
-last call's latency and judgments per second.
+answer comes back in about 150 ms as numbers, not prose. A clean post shows nothing at all; when
+something crosses a threshold the post gets a flag chip and its own text is blurred until you hover
+it. Click the chip for every value. A panel in the corner counts posts analyzed, dollars spent to
+four decimals, the last call's latency and judgments per second.
 
-The six dimensions, all editable:
-• fact-dense: how much specific, verifiable content the post has
-• engagement bait: does it end by asking for replies, reposts, likes, follows or bookmarks
-• promo: is it pushing a product, course, newsletter, community or paid offer
-• secondhand: does it only relay someone else's view without adding its own argument
-• filler: how much of it is filler relative to the information it carries
-• jevpilled: is the post about Jev or TypeSafe
+The six dimensions (Korean chip labels), all editable:
+• 정보 (info): how much specific, verifiable content the post has
+• 유도 (bait): does it end by asking for replies, reposts, likes, follows or bookmarks
+• 홍보 (promo): is it pushing a product, course, newsletter, community or paid offer
+• 재탕 (secondhand): does it only relay someone else's view without adding its own argument
+• 잡담 (filler): how much of it is filler relative to the information it carries
+• 쇼츠 (shorts-tip): is it a hook-first, low-substance short tip built for a short-form feed
+
+The chips, corner panel and settings page are in Korean; the questions sent to Jev stay in English.
 
 Bring your own TypeSafe API key. Typical cost is about $0.00004 per post; a thousand posts is under
 four cents. Results are cached by post id so scrolling back, reloading or returning tomorrow re-bills
